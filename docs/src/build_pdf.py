@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Genera docs/Documento_Tecnico_VirtualShop.pdf  ->  python3 docs/src/build_pdf.py"""
+"""Genera docs/Planeacion_Tramas.pdf  ->  python3 docs/src/build_pdf.py"""
 import os
 import sys
 from xml.sax.saxutils import escape
@@ -20,14 +20,14 @@ from reportlab.platypus.tableofcontents import TableOfContents
 import content as C
 import mockups as M
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "Documento_Tecnico_VirtualShop.pdf")
+OUT = os.path.join(os.path.dirname(__file__), "..", "Planeacion_Tramas.pdf")
 
 # ------------------------------------------------------------------ datos de portada (editar)
 INSTITUCION = "Fundación Universitaria Compensar"
 FACULTAD = "Facultad de Ingeniería"
 ASIGNATURA = "Desarrollo de aplicaciones móviles nativas (Android)"
-PROYECTO = "VirtualShop"
-SUBTITULO = "Documento técnico de planeación de una tienda virtual Android"
+PROYECTO = "Tramas"
+SUBTITULO = "Planeación de tienda virtual Android"
 INTEGRANTES = ["[Nombre completo – integrante 1]", "[Nombre completo – integrante 2]", "[Nombre completo – integrante 3]"]
 DOCENTE = "[Nombre del docente]"
 FECHA = "13 de octubre de 2026"
@@ -106,9 +106,10 @@ def cover_page(c, doc):
     c.drawCentredString(w / 2, h - 86, FACULTAD)
     c.setFont("Helvetica-Bold", 46)
     c.drawCentredString(w / 2, h - 190, PROYECTO)
-    c.setFont("Helvetica", 15)
-    c.drawCentredString(w / 2, h - 222, "Documento técnico de planeación")
-    c.drawCentredString(w / 2, h - 242, "de tienda virtual Android")
+    c.setFont("Helvetica", 17)
+    c.drawCentredString(w / 2, h - 222, "Planeación")
+    c.setFont("Helvetica-Oblique", 11)
+    c.drawCentredString(w / 2, h - 244, "Lo hecho a mano, cerca de ti")
     c.setFillColor(HexColor("#222222"))
     y = h * .45 - 50
     c.setFont("Helvetica-Bold", 10)
@@ -136,7 +137,7 @@ def footer(c, doc):
     c.line(2 * cm, 1.6 * cm, w - 2 * cm, 1.6 * cm)
     c.setFont("Helvetica", 8)
     c.setFillColor(HexColor("#666666"))
-    c.drawString(2 * cm, 1.15 * cm, f"{PROYECTO} · Documento técnico de planeación · {INSTITUCION}")
+    c.drawString(2 * cm, 1.15 * cm, f"{PROYECTO} · Planeación · {INSTITUCION}")
     c.drawRightString(w - 2 * cm, 1.15 * cm, f"Página {doc.page}")
 
 
@@ -277,7 +278,7 @@ def build():
 
     # 1. Introducción
     story += [P("1. Introducción", "H1"),
-              P("Este documento presenta la <b>planeación técnica</b> de <b>VirtualShop</b>, una tienda virtual para dispositivos Android desarrollada de forma nativa (Kotlin). "
+              P("Este documento presenta la <b>planeación</b> de <b>Tramas</b>, una tienda virtual para dispositivos Android desarrollada de forma nativa (Kotlin). "
                 "Reúne el levantamiento de requerimientos funcionales y no funcionales, el marco normativo del comercio electrónico en Colombia, "
                 "una propuesta de arquitectura modular y los mockups de la aplicación diferenciados por rol de usuario: Vendedor, Comprador y Administrador."),
               P("Fue construido con la finalidad de <b>establecer las bases lógicas del proyecto antes de escribir código</b>: acordar qué debe hacer la aplicación, "
@@ -291,7 +292,7 @@ def build():
 
     # 2. Enfoque
     story += [P("2. Enfoque", "H1"), P("2.1 ¿De qué trata el proyecto?", "H2"),
-              P("VirtualShop es un <b>marketplace móvil de artesanías y productos regionales de Colombia</b> (tejidos, cerámica, café de origen, joyería, talla en madera). "
+              P("Tramas es un <b>marketplace móvil de artesanías y productos regionales de Colombia</b> (tejidos, cerámica, café de origen, joyería, talla en madera). "
                 "Conecta a artesanos y pequeños productores (vendedores) con compradores que buscan productos auténticos y cercanos, bajo la supervisión de un administrador "
                 "que gestiona usuarios, moderación de productos, categorías y reportes. El comprador explora el catálogo, ve qué tan cerca está el taller, agrega productos al carrito "
                 "y paga en la misma aplicación; el vendedor publica productos con fotos tomadas desde su celular y gestiona sus pedidos."),
@@ -317,8 +318,8 @@ def build():
               P("La aplicación se plantea con <b>MVVM + Clean Architecture</b> y un proyecto Gradle <b>multi-módulo</b>. Cada funcionalidad vive en su propio módulo "
                 "(<i>feature</i>) y depende únicamente de <i>core-domain</i>, que define casos de uso e interfaces; los proveedores externos (autenticación, almacenamiento, pagos) "
                 "se implementan en <i>core-data</i>, de modo que pueden sustituirse sin modificar la interfaz. Esto facilita el trabajo en paralelo, las pruebas y la escalabilidad."),
-              KeepTogether([arch_diagram(), P("Figura 1. Arquitectura modular de VirtualShop y servicios externos.", "cap")])]
-    story += [table(["Componente", "Tecnología / API", "Uso en VirtualShop"], [
+              KeepTogether([arch_diagram(), P("Figura 1. Arquitectura modular de Tramas y servicios externos.", "cap")])]
+    story += [table(["Componente", "Tecnología / API", "Uso en Tramas"], [
         ("Lenguaje y UI", "Kotlin, Jetpack Compose, Material 3, Navigation", "Interfaz declarativa y navegación por rol."),
         ("Autenticación", "Firebase Authentication, Google Sign-In (OAuth 2.0), BiometricPrompt", "Registro, login, custom claims por rol y desbloqueo con huella."),
         ("Almacenamiento", "Cloud Firestore, Cloud Storage, Room (caché local)", "Usuarios, productos, carritos y pedidos; imágenes; uso sin conexión."),

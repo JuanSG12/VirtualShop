@@ -4,10 +4,16 @@ from reportlab.lib.colors import Color, HexColor, white
 from reportlab.platypus import Flowable
 
 W, H = 300, 600
-BUYER, SELLER, ADMIN = HexColor("#1F6F5C"), HexColor("#C2572B"), HexColor("#2D3E73")
-BG, INK, GREY = HexColor("#F7F4EF"), HexColor("#222222"), HexColor("#8A8F98")
+BUYER, SELLER, ADMIN = HexColor("#0F5C54"), HexColor("#B5472A"), HexColor("#27386B")
+OCHRE = HexColor("#E9A23B")
+BG, INK, GREY = HexColor("#FAF7F2"), HexColor("#1F2328"), HexColor("#8A8F98")
 LINE, CARD, RED = HexColor("#E3DED4"), white, HexColor("#C0392B")
 OK, WARN = HexColor("#2E9E6B"), HexColor("#E0A030")
+
+
+ICONS = {"Inicio": "home", "Buscar": "search", "Carrito": "cart", "Perfil": "user", "Panel": "chart", "Productos": "box",
+         "Pedidos": "list", "Tienda": "store", "Usuarios": "users", "Reportes": "report"}
+ART = {"#CFA87A": "mochila", "#C9B7A3": "taza", "#B79B80": "cafe", "#BBC4C9": "collar"}
 
 
 class Ctx:
@@ -56,27 +62,105 @@ class Ctx:
 
     # ---- componentes ----
     def status_bar(self):
-        self.rect(0, 0, W, 22, self.color)
         self.text(14, 15, "9:41", 8, white, True)
         self.rect(262, 8, 20, 9, None, white, 2)
         self.rect(264, 10, 13, 5, white)
 
     def appbar(self, title, back=False):
+        self.rect(0, -20, W, 84, self.color, None, 18)
         self.status_bar()
-        self.rect(0, 22, W, 40, self.color)
         if back:
-            self.text(14, 48, "<", 16, white, True)
-        self.text(36 if back else 16, 47, title, 14, white, True)
+            self.circle(22, 44, 11, Color(1, 1, 1, alpha=.2))
+            self.text(22, 48, "<", 12, white, True, "c")
+        self.text(42 if back else 16, 49, title, 14.5, white, True)
 
     def nav(self, items, active):
-        self.rect(0, 552, W, 48, white)
-        self.line(0, 552, W, 552)
+        self.rect(0, 548, W, 52, Color(0, 0, 0, alpha=.05))
+        self.rect(0, 550, W, 50, white)
         n = len(items)
         for i, it in enumerate(items):
             cx = W / n * (i + .5)
             on = i == active
-            self.circle(cx, 570, 7, self.color if on else LINE)
-            self.text(cx, 590, it, 7.5, self.color if on else GREY, on, "c")
+            if on:
+                self.rect(cx - 20, 554, 40, 22, self.color_soft(), None, 11)
+            self.icon(ICONS.get(it, "home"), cx, 565, self.color if on else GREY)
+            self.text(cx, 590, it, 7, self.color if on else GREY, on, "c")
+
+    def color_soft(self):
+        r, g, b = self.color.red, self.color.green, self.color.blue
+        return Color(1 - (1 - r) * .14, 1 - (1 - g) * .14, 1 - (1 - b) * .14)
+
+    def poly(self, pts, fill=None, stroke=None, sw=1):
+        p = self.c.beginPath()
+        p.moveTo(pts[0][0], H - pts[0][1])
+        for x, y in pts[1:]:
+            p.lineTo(x, H - y)
+        p.close()
+        if fill:
+            self.c.setFillColor(fill)
+        if stroke:
+            self.c.setStrokeColor(stroke)
+            self.c.setLineWidth(sw)
+        self.c.drawPath(p, fill=1 if fill else 0, stroke=1 if stroke else 0)
+
+    def star(self, cx, cy, r, col=OCHRE):
+        import math
+        pts = []
+        for k in range(10):
+            a = -math.pi / 2 + k * math.pi / 5
+            rr = r if k % 2 == 0 else r * .45
+            pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
+        self.poly(pts, col)
+
+    def zigzag(self, x, y, w, h, col, n=12):
+        step = w / n
+        for i in range(n):
+            self.poly([(x + i * step, y + h), (x + i * step + step / 2, y), (x + (i + 1) * step, y + h)], col)
+
+    def logo(self, cx, cy, r, bg=None, fg=white):
+        self.circle(cx, cy, r, bg or self.color)
+        s = r * .55
+        for k, dy in enumerate((-s * .6, 0, s * .6)):
+            self.line(cx - s, cy + dy, cx + s, cy + dy, fg, max(1, r * .1))
+        for k in (-1, 0, 1):
+            self.line(cx + k * s * .7, cy - s * .9, cx + k * s * .7, cy + s * .9, fg, max(1, r * .1))
+
+    def icon(self, name, cx, cy, col):
+        l = lambda *a: self.line(*a, col, 1.2)
+        if name == "home":
+            self.poly([(cx - 7, cy), (cx, cy - 7), (cx + 7, cy)], None, col, 1.2)
+            self.rect(cx - 5, cy, 10, 7, None, col, 1, 1.2)
+        elif name == "search":
+            self.circle(cx - 1, cy - 1, 5, None, col, 1.3)
+            l(cx + 3, cy + 3, cx + 7, cy + 7)
+        elif name == "cart":
+            self.poly([(cx - 7, cy - 5), (cx + 7, cy - 5), (cx + 5, cy + 3), (cx - 5, cy + 3)], None, col, 1.2)
+            self.circle(cx - 3, cy + 7, 1.6, col)
+            self.circle(cx + 3, cy + 7, 1.6, col)
+        elif name == "user":
+            self.circle(cx, cy - 3, 4, None, col, 1.3)
+            self.rect(cx - 7, cy + 3, 14, 7, None, col, 3.5, 1.2)
+        elif name == "chart":
+            for i, hh in enumerate((6, 11, 8)):
+                self.rect(cx - 7 + i * 5.5, cy + 6 - hh, 3.6, hh, col, None, 1)
+        elif name == "box":
+            self.rect(cx - 7, cy - 5, 14, 12, None, col, 2, 1.2)
+            l(cx - 7, cy - 1, cx + 7, cy - 1)
+        elif name == "list":
+            for i in range(3):
+                self.circle(cx - 6, cy - 4 + i * 5, 1.1, col)
+                l(cx - 3, cy - 4 + i * 5, cx + 7, cy - 4 + i * 5)
+        elif name == "store":
+            self.poly([(cx - 8, cy - 1), (cx - 6, cy - 7), (cx + 6, cy - 7), (cx + 8, cy - 1)], None, col, 1.2)
+            self.rect(cx - 6, cy - 1, 12, 8, None, col, 1, 1.2)
+        elif name == "users":
+            self.circle(cx - 3, cy - 3, 3.4, None, col, 1.2)
+            self.circle(cx + 4, cy - 2, 2.8, None, col, 1.2)
+            self.rect(cx - 8, cy + 3, 11, 6, None, col, 3, 1.2)
+        elif name == "report":
+            self.rect(cx - 6, cy - 7, 12, 14, None, col, 2, 1.2)
+            l(cx - 3, cy - 2, cx + 3, cy - 2)
+            l(cx - 3, cy + 2, cx + 3, cy + 2)
 
     def btn(self, x, y, w, label, fill=None, h=32, outline=False, tcol=None):
         fill = fill or self.color
@@ -93,16 +177,36 @@ class Ctx:
         self.text(x + 8, y + 26, value, 9.5, INK)
 
     def img(self, x, y, w, h, tint="#D9CDB8"):
-        self.rect(x, y, w, h, HexColor(tint), None, 6)
-        p = self.c.beginPath()
-        p.moveTo(x + w * .15, H - (y + h * .8))
-        p.lineTo(x + w * .42, H - (y + h * .35))
-        p.lineTo(x + w * .62, H - (y + h * .65))
-        p.lineTo(x + w * .75, H - (y + h * .5))
-        p.lineTo(x + w * .88, H - (y + h * .8))
-        p.close()
-        self.c.setFillColor(Color(1, 1, 1, alpha=.55))
-        self.c.drawPath(p, fill=1, stroke=0)
+        base = HexColor(tint)
+        self.rect(x, y, w, h, base, None, 8)
+        self.circle(x + w * .78, y + h * .25, min(w, h) * .32, Color(1, 1, 1, alpha=.18))
+        cx, cy, s = x + w / 2, y + h / 2, min(w, h) / 2
+        kind = ART.get(tint, "weave")
+        dark = Color(0, 0, 0, alpha=.28)
+        if kind == "mochila":
+            self.circle(cx, cy - s * .25, s * .42, None, HexColor("#5B3A24"), 1.6)
+            self.poly([(cx - s * .55, cy - s * .1), (cx + s * .55, cy - s * .1), (cx + s * .7, cy + s * .75), (cx - s * .7, cy + s * .75)], HexColor("#B5472A"))
+            for i in range(3):
+                self.zigzag(cx - s * .62 + i * .02, cy + s * (.05 + i * .22), s * 1.24 - i * .04, s * .13, HexColor("#F3D9A4" if i != 1 else "#0F5C54"), 8)
+        elif kind == "taza":
+            self.rect(cx - s * .5, cy - s * .35, s, s * .95, HexColor("#F3EDE4"), None, 6)
+            self.circle(cx + s * .55, cy + s * .1, s * .24, None, HexColor("#F3EDE4"), 2.2)
+            self.rect(cx - s * .5, cy - s * .05, s, s * .22, HexColor("#B5472A"), None, 0)
+            self.zigzag(cx - s * .5, cy + s * .22, s, s * .16, HexColor("#0F5C54"), 6)
+        elif kind == "cafe":
+            self.rect(cx - s * .5, cy - s * .6, s, s * 1.3, HexColor("#5B3A24"), None, 6)
+            self.rect(cx - s * .5, cy - s * .6, s, s * .22, HexColor("#3D2616"), None, 4)
+            self.circle(cx, cy + s * .05, s * .26, HexColor("#F3D9A4"))
+            self.circle(cx, cy + s * .05, s * .12, HexColor("#5B3A24"))
+        elif kind == "collar":
+            import math
+            for k in range(11):
+                a = math.pi * (.15 + .7 * k / 10)
+                self.circle(cx + s * .75 * math.cos(a), cy - s * .55 + s * .95 * math.sin(a), s * .09, HexColor("#F5F5F5"), HexColor("#9AA5AB"), .6)
+            self.circle(cx, cy + s * .45, s * .2, HexColor("#E9A23B"), HexColor("#B97F1E"), .8)
+        else:
+            self.zigzag(x + 4, cy - s * .45, w - 8, s * .3, Color(1, 1, 1, alpha=.7), 7)
+            self.zigzag(x + 4, cy, w - 8, s * .3, HexColor("#B5472A"), 7)
 
     def chip(self, x, y, label, fill, tcol=white, w=None, h=15):
         w = w or (len(label) * 4.6 + 12)
@@ -111,14 +215,18 @@ class Ctx:
         return w
 
     def card(self, x, y, w, h):
-        self.rect(x, y, w, h, CARD, LINE, 8, 0.8)
+        self.rect(x, y + 2, w, h, Color(0, 0, 0, alpha=.06), None, 10)
+        self.rect(x, y, w, h, CARD, None, 10)
 
     def product(self, x, y, name, price, tint):
-        self.card(x, y, 130, 132)
+        self.card(x, y, 130, 134)
         self.img(x + 6, y + 6, 118, 70, tint)
         self.text(x + 8, y + 92, name, 8.5, INK, True)
         self.text(x + 8, y + 107, price, 9, self.color, True)
-        self.text(x + 8, y + 123, "* 4,8  ·  2,4 km", 6.5, GREY)
+        self.star(x + 11, y + 119, 4)
+        self.text(x + 18, y + 122, "4,8  ·  2,4 km", 6.5, GREY)
+        self.circle(x + 108, y + 20, 9, white)
+        self.circle(x + 108, y + 20, 3, None, RED, 1)
 
     def pin(self, x, y):
         self.circle(x, y, 7, RED)
@@ -174,10 +282,10 @@ class Ctx:
 def s_login(c):
     c.rect(0, 0, W, H, BG)
     c.status_bar()
-    c.circle(150, 92, 34, c.color)
-    c.text(150, 98, "VS", 20, white, True, "c")
-    c.text(150, 150, "VirtualShop", 18, INK, True, "c")
-    c.text(150, 165, "Artesanías y productos de Colombia", 8, GREY, anchor="c")
+    c.zigzag(0, 22, W, 10, OCHRE, 20)
+    c.logo(150, 92, 34)
+    c.text(150, 150, "Tramas", 22, c.color, True, "c")
+    c.text(150, 166, "Lo hecho a mano, cerca de ti", 8.5, GREY, anchor="c")
     c.field(24, 190, 252, "Correo electrónico", "juan@correo.com")
     c.field(24, 232, 252, "Contraseña", "••••••••")
     c.text(276, 282, "¿Olvidaste tu contraseña?", 7.5, c.color, anchor="r")
@@ -221,7 +329,7 @@ def s_biometric(c):
     c.rect(0, 370, W, 230, white, None, 0)
     c.rect(0, 370, W, 8, white, None, 14)
     c.text(150, 408, "Confirma tu identidad", 12, INK, True, "c")
-    c.text(150, 424, "Usa tu huella para ingresar a VirtualShop", 8, GREY, anchor="c")
+    c.text(150, 424, "Usa tu huella para ingresar a Tramas", 8, GREY, anchor="c")
     c.circle(150, 480, 26, HexColor("#E7F2EE"), c.color, 1.6)
     for r in (6, 12, 18):
         c.circle(150, 480, r, None, c.color, 1.2)
@@ -236,16 +344,23 @@ B_NAV = ("Inicio", "Buscar", "Carrito", "Perfil")
 
 def b_home(c):
     c.rect(0, 0, W, H, BG)
-    c.appbar("VirtualShop")
-    c.rect(12, 70, 276, 28, white, None, 14)
-    c.text(26, 88, "Buscar artesanías, café, tejidos…", 8.5, GREY)
+    c.appbar("")
+    c.logo(26, 44, 11, white, c.color)
+    c.text(44, 49, "Tramas", 14.5, white, True)
+    c.circle(268, 44, 11, Color(1, 1, 1, alpha=.2))
+    c.icon("cart", 268, 43, white)
+    c.rect(12, 72, 276, 28, white, None, 14)
+    c.icon("search", 26, 86, GREY)
+    c.text(40, 90, "Buscar artesanías, café, tejidos…", 8.5, GREY)
     x = 12
     for i, t in enumerate(("Todo", "Tejidos", "Cerámica", "Café", "Joyería")):
         w = c.chip(x, 108, t, c.color if i == 0 else white, white if i == 0 else INK)
         x += w + 5
-    c.rect(12, 132, 276, 62, HexColor("#E6B98F"), None, 10)
-    c.text(24, 156, "Cerca de ti", 12, INK, True)
+    c.rect(12, 132, 276, 66, OCHRE, None, 12)
+    c.zigzag(12, 186, 276, 12, Color(1, 1, 1, alpha=.55), 23)
+    c.text(24, 156, "Cerca de ti", 13, INK, True)
     c.text(24, 172, "Talleres a menos de 5 km", 8.5, INK)
+    c.chip(214, 146, "Ver mapa", INK)
     c.text(12, 214, "Destacados", 11, INK, True)
     c.product(12, 222, "Mochila wayúu", "$ 185.000", "#CFA87A")
     c.product(158, 222, "Taza cerámica", "$ 42.000", "#C9B7A3")
@@ -326,7 +441,7 @@ def b_checkout(c):
     c.text(278, 445, "$ 366.025", 12, c.color, True, "r")
     c.btn(12, 470, 276, "Pagar con Wompi", h=38)
     c.text(150, 524, "Pago seguro procesado por Wompi.", 7, GREY, anchor="c")
-    c.text(150, 534, "VirtualShop no almacena datos de tu tarjeta.", 7, GREY, anchor="c")
+    c.text(150, 534, "Tramas no almacena datos de tu tarjeta.", 7, GREY, anchor="c")
 
 
 def b_orders(c):
@@ -577,7 +692,7 @@ def a_reports(c):
     c.bars(26, 144, 248, 70, (.9, .6, .45, .3, .2))
     for i, d in enumerate(("Tejidos", "Café", "Cerám.", "Joyas", "Otros")):
         c.text(26 + 248 / 5 * (i + .5), 226, d, 6.5, GREY, anchor="c")
-    for i, (r, m, s, col) in enumerate((("VS-1042-A", "$ 366.025", "Aprobado", OK), ("VS-1041-B", "$ 185.000", "Aprobado", OK), ("VS-1040-C", "$ 70.500", "Pendiente", WARN), ("VS-0994-D", "$ 96.000", "Rechazado", RED))):
+    for i, (r, m, s, col) in enumerate((("TR-1042-A", "$ 366.025", "Aprobado", OK), ("TR-1041-B", "$ 185.000", "Aprobado", OK), ("TR-1040-C", "$ 70.500", "Pendiente", WARN), ("TR-0994-D", "$ 96.000", "Rechazado", RED))):
         c.list_row(246 + i * 52, r, m, s, col, False, 44)
     c.btn(12, 462, 276, "Exportar CSV", h=34, outline=True)
     c.nav(A_NAV, 3)
