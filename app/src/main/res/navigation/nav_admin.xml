@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" app:startDestination="@id/adminDashboardFragment">
+    <fragment android:id="@+id/adminDashboardFragment" android:name="com.tramas.app.ui.admin.AdminDashboardFragment" android:label="@string/dashboard">
+    </fragment>
+    <fragment android:id="@+id/adminUsersFragment" android:name="com.tramas.app.ui.admin.AdminUsersFragment" android:label="@string/gestion_de_usuarios">
+    </fragment>
+    <fragment android:id="@+id/userFormFragment" android:name="com.tramas.app.ui.admin.UserFormFragment" android:label="@string/usuario">
+        <argument android:name="userId" app:argType="integer" android:defaultValue="-1"  />
+    </fragment>
+    <fragment android:id="@+id/adminProductsFragment" android:name="com.tramas.app.ui.admin.AdminProductsFragment" android:label="@string/gestion_de_productos">
+    </fragment>
+    <fragment android:id="@+id/adminSalesFragment" android:name="com.tramas.app.ui.admin.AdminSalesFragment" android:label="@string/reporte_de_ventas">
+    </fragment>
+</navigation>

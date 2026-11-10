@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="gap_s">8dp</dimen>
+    <dimen name="gap_m">12dp</dimen>
+    <dimen name="gap_l">20dp</dimen>
+    <dimen name="radius_card">16dp</dimen>
+    <dimen name="radius_button">14dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="avatar_l">88dp</dimen>
+    <dimen name="avatar_m">44dp</dimen>
+    <dimen name="product_card_width">168dp</dimen>
+</resources>

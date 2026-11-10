@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/adminDashboardFragment" android:icon="@drawable/ic_chart" android:title="@string/dashboard" />
+    <item android:id="@+id/adminUsersFragment" android:icon="@drawable/ic_users" android:title="@string/gestion_de_usuarios" />
+    <item android:id="@+id/adminProductsFragment" android:icon="@drawable/ic_box" android:title="@string/gestion_de_productos" />
+    <item android:id="@+id/adminSalesFragment" android:icon="@drawable/ic_report" android:title="@string/reporte_de_ventas" />
+    <group android:id="@+id/groupSession" android:checkableBehavior="none">
+    <item android:id="@+id/action_logout" android:icon="@drawable/ic_logout" android:title="@string/cerrar_sesion" />
+    </group>
+</menu>

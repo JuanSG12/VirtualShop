@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/adminDashboardFragment" android:icon="@drawable/ic_chart" android:title="@string/panel" />
+    <item android:id="@+id/adminUsersFragment" android:icon="@drawable/ic_users" android:title="@string/usuarios" />
+    <item android:id="@+id/adminProductsFragment" android:icon="@drawable/ic_box" android:title="@string/productos" />
+    <item android:id="@+id/adminSalesFragment" android:icon="@drawable/ic_report" android:title="@string/reportes" />
+</menu>

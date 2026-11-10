@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp" android:height="160dp" android:viewportWidth="160" android:viewportHeight="160">
+    <path android:pathData="M0,0h160v160h-160z" android:fillColor="#CBD3D8"/>
+    <path android:pathData="M72,36 a52,52 0 1 0 104,0 a52,52 0 1 0 -104,0 z" android:fillColor="#FFFFFF" android:fillAlpha="0.18"/>
+    <path android:pathData="M119.7,61.6 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M115.6,75.0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M109.7,86.8 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M102.2,96.6 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M93.5,103.9 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M84.0,108.5 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M74.0,110.0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M64.0,108.5 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M54.5,103.9 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M45.8,96.6 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M38.3,86.8 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M32.4,75.0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M28.299999999999997,61.6 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 z" android:fillColor="#F8F8F8"/>
+    <path android:pathData="M68,112 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 z" android:fillColor="#E9A23B"/>
+    <path android:pathData="M75,112 a5,5 0 1 0 10,0 a5,5 0 1 0 -10,0 z" android:fillColor="#B97F1E"/>
+</vector>

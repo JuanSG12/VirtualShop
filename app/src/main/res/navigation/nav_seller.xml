@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" app:startDestination="@id/sellerProductsFragment">
+    <fragment android:id="@+id/sellerProductsFragment" android:name="com.tramas.app.ui.seller.SellerProductsFragment" android:label="@string/mis_productos">
+    </fragment>
+    <fragment android:id="@+id/productFormFragment" android:name="com.tramas.app.ui.seller.ProductFormFragment" android:label="@string/producto">
+        <argument android:name="productId" app:argType="integer" android:defaultValue="-1"  />
+    </fragment>
+    <fragment android:id="@+id/sellerOrdersFragment" android:name="com.tramas.app.ui.seller.SellerOrdersFragment" android:label="@string/pedidos_recibidos">
+    </fragment>
+    <fragment android:id="@+id/sellerProfileFragment" android:name="com.tramas.app.ui.seller.SellerProfileFragment" android:label="@string/perfil_de_vendedor">
+    </fragment>
+</navigation>

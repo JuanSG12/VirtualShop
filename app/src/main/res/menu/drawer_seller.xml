@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/sellerProductsFragment" android:icon="@drawable/ic_box" android:title="@string/mis_productos" />
+    <item android:id="@+id/sellerOrdersFragment" android:icon="@drawable/ic_list" android:title="@string/pedidos_recibidos" />
+    <item android:id="@+id/sellerProfileFragment" android:icon="@drawable/ic_store" android:title="@string/perfil_de_vendedor" />
+    <group android:id="@+id/groupSession" android:checkableBehavior="none">
+    <item android:id="@+id/action_logout" android:icon="@drawable/ic_logout" android:title="@string/cerrar_sesion" />
+    </group>
+</menu>

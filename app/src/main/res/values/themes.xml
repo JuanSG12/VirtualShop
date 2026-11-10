@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema base: Material 3 sin ActionBar, con formas redondeadas y estilos propios -->
+    <style name="Theme.Tramas" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/teal</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/teal_dark</item>
+        <item name="colorPrimaryContainer">@color/teal_soft</item>
+        <item name="colorOnPrimaryContainer">@color/teal_dark</item>
+        <item name="colorSecondary">@color/ochre</item>
+        <item name="colorOnSecondary">@color/ink</item>
+        <item name="colorSecondaryContainer">@color/ochre_soft</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/ink</item>
+        <item name="colorOutline">@color/line</item>
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="colorSurfaceContainerLowest">@color/surface</item>
+        <item name="colorSurfaceContainerLow">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface</item>
+        <item name="colorSurfaceContainerHigh">@color/surface</item>
+        <item name="colorSurfaceContainerHighest">@color/canvas</item>
+        <item name="colorError">@color/danger</item>
+        <item name="android:colorBackground">@color/canvas</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:textColorPrimary">@color/ink</item>
+        <item name="android:textColorSecondary">@color/ink_muted</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Tramas.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Tramas.Medium</item>
+        <item name="materialButtonStyle">@style/Widget.Tramas.Button</item>
+        <item name="textInputStyle">@style/Widget.Tramas.TextInput</item>
+        <item name="chipStyle">@style/Widget.Tramas.Chip</item>
+        <item name="toolbarStyle">@style/Widget.Tramas.Toolbar</item>
+        <item name="bottomNavigationStyle">@style/Widget.Tramas.BottomNav</item>
+    </style>
+
+    <!-- Un tema por rol: cambia solo la identidad cromática -->
+    <style name="Theme.Tramas.Buyer" parent="Theme.Tramas" />
+
+    <style name="Theme.Tramas.Seller" parent="Theme.Tramas">
+        <item name="colorPrimary">@color/terracotta</item>
+        <item name="colorPrimaryDark">@color/terracotta_dark</item>
+        <item name="colorPrimaryContainer">@color/terracotta_soft</item>
+        <item name="colorOnPrimaryContainer">@color/terracotta_dark</item>
+    </style>
+
+    <style name="Theme.Tramas.Admin" parent="Theme.Tramas">
+        <item name="colorPrimary">@color/indigo</item>
+        <item name="colorPrimaryDark">@color/indigo_dark</item>
+        <item name="colorPrimaryContainer">@color/indigo_soft</item>
+        <item name="colorOnPrimaryContainer">@color/indigo_dark</item>
+    </style>
+
+    <!-- Splash y autenticación -->
+    <style name="Theme.Tramas.Splash" parent="Theme.Tramas">
+        <item name="android:statusBarColor">@color/teal_dark</item>
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+    </style>
+</resources>

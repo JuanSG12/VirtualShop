@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Marca Tramas: paleta propia (no usa los colores por defecto de Android/Material) -->
+    <color name="teal">#0F5C54</color>
+    <color name="teal_dark">#0A3F3A</color>
+    <color name="teal_soft">#E1EFEC</color>
+    <color name="terracotta">#B5472A</color>
+    <color name="terracotta_dark">#8A3319</color>
+    <color name="terracotta_soft">#F8E4DC</color>
+    <color name="indigo">#27386B</color>
+    <color name="indigo_dark">#1A2650</color>
+    <color name="indigo_soft">#E3E7F4</color>
+    <color name="ochre">#E9A23B</color>
+    <color name="ochre_soft">#FBEFD6</color>
+
+    <color name="canvas">#FAF7F2</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="ink">#1F2328</color>
+    <color name="ink_muted">#6B7280</color>
+    <color name="line">#E3DED4</color>
+    <color name="scrim">#66000000</color>
+
+    <color name="success">#2E9E6B</color>
+    <color name="warning">#D98E1F</color>
+    <color name="danger">#C0392B</color>
+    <color name="neutral">#8A8F98</color>
+    <color name="white">#FFFFFF</color>
+</resources>
