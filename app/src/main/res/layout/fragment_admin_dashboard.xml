@@ -16,7 +16,7 @@
             android:background="@drawable/bg_header_primary"
             android:orientation="vertical"
             android:padding="@dimen/screen_padding"
-            android:paddingBottom="36dp">
+            android:paddingBottom="52dp">
 
             <TextView
                 android:id="@+id/tvGreeting"

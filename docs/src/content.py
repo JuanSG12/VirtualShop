@@ -68,8 +68,8 @@ RF = {
          "FusedLocationProvider; permiso ACCESS_COARSE/FINE_LOCATION solicitado en contexto; GeoHash o consulta geográfica por radio. Si se niega el permiso, usar la ciudad del perfil."),
         ("RF-HOM-03", "Banners y productos destacados administrables.", "Baja",
          "Colección ‘featured’ editable solo por Administrador; campos: productId, orden, vigencia desde/hasta."),
-        ("RF-HOM-04", "Navegación inferior diferenciada por rol.", "Alta",
-         "Comprador: Inicio, Buscar, Carrito, Perfil. Vendedor: Panel, Productos, Pedidos, Tienda. Administrador: Panel, Usuarios, Productos, Reportes. Navigation Component con un grafo por rol."),
+        ("RF-HOM-04", "Navegación diferenciada por rol con menú lateral (Drawer) y barra inferior (Bottom Navigation).", "Alta",
+         "Comprador: Inicio, Catálogo, Carrito y Perfil (Mis pedidos en el menú lateral). Vendedor: Productos, Pedidos y Perfil. Administrador: Panel, Usuarios, Productos y Reportes. Navigation Component con un grafo por rol (res/navigation) y menús en res/menu."),
     ],
     "USR – Administración de usuarios y CRUD de usuario": [
         ("RF-USR-01", "Crear usuario desde el panel de administración (incluye otros administradores y vendedores).", "Alta",

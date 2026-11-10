@@ -2,6 +2,7 @@
 """Genera docs/Planeacion_Tramas.pdf  ->  python3 docs/src/build_pdf.py"""
 import os
 import sys
+import tempfile
 from xml.sax.saxutils import escape
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -13,7 +14,7 @@ from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
-from reportlab.platypus import (BaseDocTemplate, Frame, KeepTogether, NextPageTemplate, PageBreak, PageTemplate,
+from reportlab.platypus import (CondPageBreak, Image, BaseDocTemplate, Frame, KeepTogether, NextPageTemplate, PageBreak, PageTemplate,
                                 Paragraph, Spacer, Table, TableStyle)
 from reportlab.platypus.tableofcontents import TableOfContents
 
@@ -167,6 +168,37 @@ def req_tables(groups):
         out.append(Spacer(1, 6))
     return out
 
+
+
+REPO_URL = "https://github.com/JuanSG12/Tramas"
+SHOTS = os.path.join(os.path.dirname(__file__), "..", "capturas")
+_tmp = tempfile.mkdtemp()
+
+
+def shot_rows(items, per_row=4, title=None):
+    """Filas de capturas reales (docs/capturas) con leyenda; se reducen a JPEG para no inflar el PDF."""
+    from PIL import Image as PI
+    cells = []
+    for fn, cap in items:
+        im = PI.open(os.path.join(SHOTS, fn + ".png")).convert("RGB")
+        im = im.resize((540, int(540 * im.height / im.width)))
+        path = os.path.join(_tmp, fn + ".jpg")
+        im.save(path, quality=88)
+        w = 17 * cm / per_row - 10
+        cells.append([Image(path, width=w, height=w * im.height / im.width),
+                      Paragraph(E(cap), ParagraphStyle("shotcap", parent=S["cap"], fontSize=7.5, leading=9, spaceBefore=2, spaceAfter=0))])
+    out = []
+    for i in range(0, len(cells), per_row):
+        row = cells[i:i + per_row]
+        while len(row) < per_row:
+            row.append("")
+        t = Table([[c[0] if c else "" for c in row], [c[1] if c else "" for c in row]], colWidths=[17 * cm / per_row] * per_row)
+        t.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER"), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                               ("LEFTPADDING", (0, 0), (-1, -1), 3), ("RIGHTPADDING", (0, 0), (-1, -1), 3)]))
+        out += [t, Spacer(1, 8)]
+    if title:
+        out = [KeepTogether([P(title, "H3")] + out[:2])] + out[2:]
+    return out
 
 # ------------------------------------------------------------------ diagramas
 def flow_diagram():
@@ -349,7 +381,7 @@ def build():
 
     # 5. Mockup
     story += [P("5. Mockup", "H1"),
-              P("Los mockups representan la interfaz propuesta con una identidad visual cercana a la implementación final: Material Design 3, barra superior de color por rol "
+              P("Los mockups representan el diseño inicial de la interfaz (la versión implementada se documenta en la sección 6), con una identidad visual cercana a la implementación final: Material Design 3, barra superior de color por rol "
                 "(<font color='#1F6F5C'><b>verde</b></font> Comprador, <font color='#C2572B'><b>terracota</b></font> Vendedor, <font color='#2D3E73'><b>azul</b></font> Administrador), "
                 "tarjetas con esquinas redondeadas, navegación inferior de cuatro destinos y acciones primarias en botones de ancho completo. "
                 "Los precios y datos son de ejemplo."),
@@ -377,8 +409,59 @@ def build():
         ("CRUD de Perfil", "C6, V6", "RF-PER-01 a 07"),
     ], [6.2 * cm, 5.0 * cm, 5.8 * cm])]
 
-    # 6. Referencias
-    story += [Spacer(1, 14), P("6. Referencias", "H1")]
+
+    # 6. Interfaces implementadas
+    story += [PageBreak(), P("6. Interfaces implementadas", "H1"),
+              P("Esta sección documenta el frontend construido en la Actividad 3, para mantener la documentación coherente con el desarrollo. "
+                f"El código fuente y el APK de validación están en el repositorio público <b>{REPO_URL}</b>."),
+              P("6.1 Resumen técnico", "H2"),
+              table(["Aspecto", "Implementación"], [
+                  ("Plataforma", "Android nativo en Kotlin; minSdk 26 (Android 8.0), compileSdk 35."),
+                  ("Interfaz", "Layouts XML con ConstraintLayout, LinearLayout, FrameLayout y NestedScrollView; Material Components (MaterialCardView, TextInputLayout, Chip, TabLayout, BottomNavigationView, NavigationView); ViewBinding."),
+                  ("Navegación", "Navigation Component: un grafo por rol (nav_buyer, nav_seller, nav_admin), menú lateral y barra inferior por rol; una activity contenedora compartida (RoleHostActivity)."),
+                  ("Recursos", "Paleta propia en colors.xml; un tema por rol en themes.xml; estilos de botones, campos, tarjetas, chips y tipografías en styles.xml; textos en español en strings.xml; íconos e ilustraciones vectoriales en drawable."),
+                  ("Listas", "RecyclerView con un BindingAdapter genérico (ViewBinding) y gráfico propio (BarChartView) dibujado con Canvas."),
+                  ("Hardware", "Huella con BiometricPrompt; cámara mediante el contrato TakePicturePreview; ubicación con LocationManager y permiso en tiempo de ejecución."),
+                  ("Datos", "Repositorio en memoria con datos de ejemplo y CRUD funcional de usuarios, productos y carrito (sin persistencia)."),
+              ], [3.2 * cm, 13.8 * cm]),
+              P("6.2 Capturas de la aplicación", "H2"),
+              P("Las capturas se generaron automáticamente con pruebas Robolectric sobre las mismas pantallas del APK.")]
+    story += shot_rows(title="Transversal (todos los roles)", items=[
+        ("00_splash", "Splash"), ("01_login", "Inicio de sesión y huella"), ("02_register", "Registro"), ("03_forgot", "Recuperar contraseña")])
+    story += shot_rows(title="Comprador", items=[
+        ("buyer_00_start", "Inicio"), ("buyer_01_catalogFragment", "Catálogo"), ("buyer_02_productDetailFragment", "Detalle de producto"),
+        ("buyer_03_cartFragment", "Carrito"), ("buyer_04_checkoutFragment", "Pasarela de pagos"), ("buyer_05_buyerOrdersFragment", "Mis pedidos"),
+        ("buyer_06_buyerProfileFragment", "Perfil")])
+    story += shot_rows(title="Vendedor", items=[
+        ("seller_00_start", "Panel de productos"), ("seller_01_productFormFragment", "Crear / editar producto"),
+        ("seller_02_sellerOrdersFragment", "Pedidos recibidos"), ("seller_03_sellerProfileFragment", "Perfil de vendedor")])
+    story += shot_rows(title="Administrador", items=[
+        ("admin_00_start", "Dashboard"), ("admin_01_adminUsersFragment", "Gestión de usuarios"), ("admin_02_userFormFragment", "Editar usuario"),
+        ("admin_03_adminProductsFragment", "Gestión de productos"), ("admin_04_adminSalesFragment", "Reporte de ventas")])
+    story += [P("6.3 Ajustes respecto al diseño inicial", "H2"),
+              table(["Elemento", "Diseño inicial (Actividad 2)", "Implementación (Actividad 3)"], [
+                  ("Barra inferior del comprador", "Inicio, Buscar, Carrito, Perfil", "Inicio, Catálogo, Carrito, Perfil; Mis pedidos se agrega al menú lateral."),
+                  ("Barra inferior del vendedor", "Panel, Productos, Pedidos, Tienda", "Productos, Pedidos, Perfil; los indicadores del panel se integran en la pantalla Productos."),
+                  ("Cámara", "CameraX", "Captura mediante la aplicación de cámara del sistema (TakePicturePreview)."),
+                  ("Geolocalización", "FusedLocationProvider y Geocoder", "LocationManager con permiso en tiempo de ejecución; muestra coordenadas, sin mapa interactivo."),
+                  ("Pagos", "Wompi con Cloud Functions y webhooks", "Pasarela simulada: valida los datos, muestra procesamiento y confirma el pedido. La integración con Wompi queda para la siguiente fase."),
+                  ("Datos", "Firebase Auth, Firestore y Storage", "Repositorio en memoria con datos de ejemplo; la conexión a Firebase queda para la siguiente fase."),
+                  ("Autenticación", "Correo, Google y huella", "Correo con validaciones y huella con BiometricPrompt (modo demostración si no hay huella registrada); Google queda pendiente."),
+              ], [3.6 * cm, 5.2 * cm, 8.2 * cm]),
+              CondPageBreak(9 * cm), P("6.4 Estado de las interfaces por módulo", "H2"),
+              table(["Módulo", "Interfaz", "Pendiente (fase de backend)"], [
+                  ("AUT – Autenticación", "Splash, login, huella, registro, recuperar contraseña", "Firebase Auth, Google Sign-In, tokens y roles en servidor"),
+                  ("HOM – Inicio", "Inicio, catálogo con búsqueda y filtros, navegación por rol", "Paginación, consulta por cercanía real"),
+                  ("USR – Usuarios", "Listado, crear, editar y eliminar", "Cloud Functions, baja lógica y auditoría"),
+                  ("PER – Perfil", "Perfil con foto, datos, direcciones y preferencias; perfil de vendedor", "Subida a Storage, mapa, consentimientos en servidor"),
+                  ("PRD – Productos", "CRUD del vendedor, detalle, moderación, filtros", "Imágenes en Storage, reglas de seguridad, inventario transaccional"),
+                  ("CAR – Carrito", "Agregar, ver, modificar cantidad, eliminar, totales con IVA y envío", "Persistencia y sincronización"),
+                  ("PAG – Pagos y pedidos", "Resumen, método de pago, confirmación, historial, pedidos del vendedor", "Wompi, webhooks, notificaciones push, factura"),
+                  ("ADM – Administración", "Dashboard, reporte de ventas", "Métricas reales, auditoría, PQRS"),
+              ], [3.6 * cm, 7.0 * cm, 6.4 * cm])]
+
+    # 7. Referencias
+    story += [PageBreak(), P("7. Referencias", "H1")]
     story += [Paragraph(E(r), S["ref"]) for r in C.REFERENCIAS]
     return story
 

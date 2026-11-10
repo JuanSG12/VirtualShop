@@ -20,6 +20,7 @@ import com.tramas.app.ui.host.BuyerActivity
 import com.tramas.app.ui.host.SellerActivity
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowLooper
@@ -27,15 +28,16 @@ import java.io.File
 
 /** Infla todas las pantallas (detecta crashes de layouts/estilos) y guarda una captura de cada una. */
 @RunWith(AndroidJUnit4::class)
+@Config(qualifiers = "w360dp-h780dp-xxhdpi")
 class ScreensTest {
     private val out = File(System.getProperty("shots.dir") ?: "build/shots").apply { mkdirs() }
 
     private fun shot(name: String, act: Activity) {
         ShadowLooper.idleMainLooper()
         val v = act.window.decorView
-        v.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(2200, View.MeasureSpec.EXACTLY))
-        v.layout(0, 0, 1080, 2200)
-        val bmp = Bitmap.createBitmap(1080, 2200, Bitmap.Config.ARGB_8888)
+        v.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(2340, View.MeasureSpec.EXACTLY))
+        v.layout(0, 0, 1080, 2340)
+        val bmp = Bitmap.createBitmap(1080, 2340, Bitmap.Config.ARGB_8888)
         v.draw(Canvas(bmp))
         File(out, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
