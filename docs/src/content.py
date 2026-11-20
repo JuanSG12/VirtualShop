@@ -239,3 +239,56 @@ REFERENCIAS = [
     "Firebase. Documentación de Authentication, Cloud Firestore, Cloud Storage, Cloud Functions y Cloud Messaging: https://firebase.google.com/docs",
     "OWASP. Mobile Application Security Verification Standard (MASVS): https://mas.owasp.org/",
 ]
+
+
+# ------------------------------------------------------------------ Ajustes de la versión definitiva
+# Textos de requerimientos que cambian para ser coherentes con lo realmente implementado.
+# id -> (descripción nueva o None, observaciones nuevas o None)
+OVERRIDES = {
+    "RF-AUT-03": ("Inicio de sesión con cuenta Google (OAuth 2.0). Estado: pendiente en esta versión.",
+                  "El acceso implementado usa correo y contraseña con Firebase Authentication. Queda como mejora: Credential Manager + Google Sign-In, vinculando proveedores para no duplicar cuentas."),
+    "RF-AUT-07": (None, "El rol se guarda en users/{uid}.role (Firestore) y las reglas de seguridad (firebase/firestore.rules) lo validan en el servidor con las funciones isAdmin() e isSeller(). La interfaz cambia según el rol, pero la autorización real está en las reglas; un usuario no puede cambiar su propio rol."),
+    "RF-HOM-01": ("Pantalla de inicio con catálogo, categorías, destacados y buscador con filtros (categoría, cercanía).",
+                  "Listas en tiempo real con listeners de Firestore (consultas con un solo filtro, sin índices compuestos); búsqueda por texto y categoría en el cliente. Imágenes con Coil y ordenadas por cercanía cuando se conoce la ubicación del usuario."),
+    "RF-USR-01": (None, "Se crea la cuenta en Firebase Authentication con una segunda instancia de Firebase (para no cerrar la sesión del administrador) y el perfil en users/{uid} con el rol elegido. Las reglas solo lo permiten al rol ADMIN."),
+    "RF-USR-06": ("Eliminar usuario (perfil de Firestore) y bloquear su acceso.",
+                  "Se borra el documento users/{uid}; al iniciar sesión la app exige que el perfil exista y esté activo, por lo que la cuenta queda bloqueada. Borrar la cuenta de Authentication requiere Admin SDK o Cloud Functions (mejora futura). Atiende el derecho de supresión (Ley 1581, art. 8)."),
+    "RF-PER-03": (None, "ImagePicker: cámara del sistema (TakePicture + FileProvider, sin permiso CAMERA) o galería (Photo Picker). Se reduce a 1024 px y JPEG 80 % antes de subir a Firebase Storage en users/{uid}/avatar.jpg; si Storage no está activo se guarda reducida en Firestore (plan B)."),
+    "RF-PER-06": (None, "Eliminar la cuenta propia borra el perfil y la cuenta de Authentication (Firebase puede exigir volver a iniciar sesión); también se limpia la bóveda de huella y la sesión."),
+    "RF-PRD-01": ("Crear producto (Vendedor): nombre, descripción, categoría, precio en COP, stock, foto (cámara o galería) y ubicación.",
+                  "Precio como entero en pesos. Foto reducida a 1024 px (JPEG) y subida a Storage en products/{id}.jpg; la URL se guarda en el documento. El producto nace PENDING (lo exigen las reglas) hasta que un administrador lo apruebe; sellerId es el del usuario autenticado y las reglas lo validan."),
+    "RF-CAR-05": (None, "El carrito se guarda en Firestore (users/{uid}/cart/{productId}) y se sincroniza en tiempo real entre sesiones y dispositivos; solo su dueño puede leerlo (reglas). Se vacía tras una compra aprobada."),
+    "RF-PAG-02": ("Pago con tarjeta crédito/débito, PSE y otros medios mediante la API externa de pagos (ePayco).",
+                  "Checkout estándar de ePayco dentro de un WebView (checkout.js con la llave pública). Los datos de pago los captura ePayco: la app nunca los ve ni los guarda. Moneda COP; modo de pruebas configurable (EPAYCO_TEST)."),
+    "RF-PAG-03": ("Creación de la orden antes del cobro y envío de los datos a la pasarela.",
+                  "La app crea la orden en Firestore con estado PENDING_PAYMENT y abre ePayco con la referencia (id de la orden), el monto, la base gravable y el IVA. La llave pública llega por BuildConfig desde local.properties (fuera de Git); la llave privada no se usa en la app."),
+    "RF-PAG-04": ("Confirmación de la transacción y actualización del estado de la orden.",
+                  "Al volver de ePayco (URL de respuesta con ref_payco) la app consulta el estado real al servicio de validación de ePayco (x_cod_response). Aprobada: orden PAID, descuento de stock y carrito vacío. Pendiente: sigue PENDING_PAYMENT. Rechazada: REJECTED. En producción esta confirmación debe hacerla un webhook en el servidor."),
+    "RF-PAG-07": (None, "Estados: Pendiente de pago, Pagado, Preparando, Enviado, Entregado, Rechazado y Cancelado. El vendedor avanza el estado con un botón y el comprador lo ve al instante (listeners de Firestore). Las notificaciones push (FCM) quedan como mejora futura."),
+    "RNF-REN-05": (None, "Firestore mantiene una caché local de lo ya consultado (lectura sin conexión); las escrituras se encolan y se envían al recuperar la red."),
+    "RNF-SEG-02": (None, "La contraseña para el ingreso con huella se guarda cifrada (AES-GCM) con una llave del Android Keystore que exige la huella en cada uso; no se almacenan tokens ni datos de pago; android:allowBackup=false."),
+    "RNF-SEG-06": (None, "Los datos de tarjeta se capturan únicamente en la página de ePayco (certificada PCI DSS); Tramas no los recibe, lo que reduce su alcance a SAQ A."),
+    "RNF-SEG-08": (None, "Las llaves van en local.properties (fuera de Git) y llegan por BuildConfig; las reglas de Firestore y Storage están versionadas en la carpeta firebase/; google-services.json debe restringirse por paquete y huella SHA-1 en la consola de Google."),
+    "RNF-ESC-01": ("Arquitectura por capas con contratos (interfaces) entre la interfaz y los datos.",
+                   "ui (Activities/Fragments y XML con ViewBinding) -> data/Services.kt (AuthRepository, UserRepository, ProductRepository, CartRepository, OrderRepository, ImageStorage) -> implementaciones de Firebase en data/firebase. Un contenedor único (RoleHostActivity) sirve a los tres roles. La modularización Gradle por funcionalidad queda como evolución."),
+    "RNF-ESC-02": (None, "Firestore y Storage escalan automáticamente; consultas con un solo filtro (sin índices compuestos), listeners ligados al ciclo de vida de cada pantalla y reglas de seguridad por rol. Vigilar las lecturas según el plan de Firebase."),
+    "RNF-ESC-03": (None, "Los repositorios son interfaces (Services.kt): Firebase es una implementación intercambiable y las pruebas usan un backend en memoria (FakeBackend). La pasarela está aislada en data/payment y ui/payment, por lo que puede cambiarse (Wompi, PayU) sin tocar las pantallas."),
+    "RNF-ESC-06": ("Calidad y entrega continua: pruebas automatizadas y CI.",
+                   "Pruebas JUnit de precios y pruebas Robolectric que inflan las 20 pantallas con un backend en memoria y comprueban que la app no se cierre sin Firebase configurado. Pipeline de GitHub Actions (.github/workflows/android.yml) que compila, prueba y publica el APK."),
+}
+
+
+def apply_overrides():
+    """Aplica OVERRIDES sobre RF y RNF (se llama desde build_pdf.py)."""
+    for groups in (RF, RNF):
+        for name, rows in groups.items():
+            for i, r in enumerate(rows):
+                if r[0] in OVERRIDES:
+                    d, o = OVERRIDES[r[0]]
+                    rows[i] = (r[0], d or r[1], r[2], o or r[3])
+
+
+REFERENCIAS += [
+    "Google. Documentación de Fused Location Provider y Geocoder (Android): https://developer.android.com/develop/sensors-and-location/location",
+    "ePayco. Documentación para desarrolladores: Checkout estándar y validación de transacciones: https://docs.epayco.co/",
+]

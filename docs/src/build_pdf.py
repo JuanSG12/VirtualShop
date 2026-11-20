@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Genera docs/Planeacion_Tramas.pdf  ->  python3 docs/src/build_pdf.py"""
+"""Genera docs/Documento_Tecnico_Definitivo_Tramas.pdf  ->  python3 docs/src/build_pdf.py"""
 import os
 import sys
 import tempfile
@@ -19,20 +19,23 @@ from reportlab.platypus import (CondPageBreak, Image, BaseDocTemplate, Frame, Ke
 from reportlab.platypus.tableofcontents import TableOfContents
 
 import content as C
+
+C.apply_overrides()
 import mockups as M
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "Planeacion_Tramas.pdf")
+OUT = os.path.join(os.path.dirname(__file__), "..", "Documento_Tecnico_Definitivo_Tramas.pdf")
 
 # ------------------------------------------------------------------ datos de portada (editar)
 INSTITUCION = "Fundación Universitaria Compensar"
 FACULTAD = "Facultad de Ingeniería"
 ASIGNATURA = "Desarrollo de aplicaciones móviles nativas (Android)"
 PROYECTO = "Tramas"
-SUBTITULO = "Planeación de tienda virtual Android"
+SUBTITULO = "Documento técnico definitivo"
 INTEGRANTES = ["[Nombre completo – integrante 1]", "[Nombre completo – integrante 2]", "[Nombre completo – integrante 3]"]
 DOCENTE = "[Nombre del docente]"
 FECHA = "13 de octubre de 2026"
 
+COVER_TITLE = "Documento técnico definitivo"
 PRIMARY, DARK, SOFT = HexColor("#1F6F5C"), HexColor("#16324A"), HexColor("#EEF4F1")
 
 # ------------------------------------------------------------------ estilos
@@ -62,7 +65,7 @@ def bullets(items):
 class Doc(BaseDocTemplate):
     def __init__(self, fn, **kw):
         super().__init__(fn, pagesize=A4, title=f"{PROYECTO} – {SUBTITULO}", author=", ".join(INTEGRANTES),
-                         subject="Planeación de tienda virtual Android", **kw)
+                         subject="Documento técnico definitivo de tienda virtual Android", **kw)
         w, h = A4
         fr = Frame(2 * cm, 2 * cm, w - 4 * cm, h - 4 * cm, id="f")
         self.addPageTemplates([PageTemplate(id="cover", frames=[Frame(0, 0, w, h, id="c")], onPage=cover_page),
@@ -108,7 +111,7 @@ def cover_page(c, doc):
     c.setFont("Helvetica-Bold", 46)
     c.drawCentredString(w / 2, h - 190, PROYECTO)
     c.setFont("Helvetica", 17)
-    c.drawCentredString(w / 2, h - 222, "Planeación")
+    c.drawCentredString(w / 2, h - 222, COVER_TITLE)
     c.setFont("Helvetica-Oblique", 11)
     c.drawCentredString(w / 2, h - 244, "Lo hecho a mano, cerca de ti")
     c.setFillColor(HexColor("#222222"))
@@ -138,7 +141,7 @@ def footer(c, doc):
     c.line(2 * cm, 1.6 * cm, w - 2 * cm, 1.6 * cm)
     c.setFont("Helvetica", 8)
     c.setFillColor(HexColor("#666666"))
-    c.drawString(2 * cm, 1.15 * cm, f"{PROYECTO} · Planeación · {INSTITUCION}")
+    c.drawString(2 * cm, 1.15 * cm, f"{PROYECTO} · {COVER_TITLE} · {INSTITUCION}")
     c.drawRightString(w - 2 * cm, 1.15 * cm, f"Página {doc.page}")
 
 
@@ -244,42 +247,39 @@ def flow_diagram():
 
 
 def arch_diagram():
+    """Diagrama de la arquitectura implementada: UI -> contratos -> Firebase / servicios del dispositivo -> APIs externas."""
     d = Drawing(480, 300)
     dark = HexColor("#555555")
 
     def box(x, y, w, h, label, col, tcol=white, fs=7.5, sub=None):
         d.add(Rect(x, y, w, h, rx=5, ry=5, fillColor=col, strokeColor=col))
-        d.add(String(x + w / 2, y + h / 2 + (1 if sub else -3), label, textAnchor="middle", fontName="Helvetica-Bold", fontSize=fs, fillColor=tcol))
+        d.add(String(x + w / 2, y + h / 2 + (2 if sub else -3), label, textAnchor="middle", fontName="Helvetica-Bold", fontSize=fs, fillColor=tcol))
         if sub:
-            d.add(String(x + w / 2, y + h / 2 - 9, sub, textAnchor="middle", fontName="Helvetica", fontSize=6, fillColor=tcol))
+            d.add(String(x + w / 2, y + h / 2 - 8, sub, textAnchor="middle", fontName="Helvetica", fontSize=6, fillColor=tcol))
 
-    box(0, 262, 340, 30, ":app  (Application, MainActivity, grafo de navegación, Hilt)", DARK)
-    feats = [(":feature-auth", M.BUYER), (":feature-catalog", M.BUYER), (":feature-cart", M.BUYER), (":feature-payments", M.BUYER),
-             (":feature-profile", M.BUYER), (":feature-seller", M.SELLER), (":feature-admin", M.ADMIN)]
-    for i, (n, col) in enumerate(feats):
-        box((i % 4) * 85, 210 - (i // 4) * 38, 80, 32, n, col, fs=6.8)
-    d.add(String(0, 296, "", fontSize=1))
-    box(0, 128, 340, 34, ":core-domain  (entidades, casos de uso, interfaces: PaymentGateway, AuthProvider, FileStorage)", HexColor("#3B7A8F"), fs=6.8)
-    box(0, 84, 110, 34, ":core-data", HexColor("#7A5C3E"), sub="Repositorios, Room, Retrofit")
-    box(115, 84, 110, 34, ":core-security", HexColor("#7A5C3E"), sub="Keystore, Biometric")
-    box(230, 84, 110, 34, ":core-ui", HexColor("#7A5C3E"), sub="Tema M3, componentes")
-    d.add(Rect(0, 8, 340, 66, rx=5, ry=5, fillColor=HexColor("#F3F3F3"), strokeColor=HexColor("#BBBBBB")))
-    d.add(String(8, 62, "CAPAS TRANSVERSALES", fontName="Helvetica-Bold", fontSize=6.5, fillColor=dark))
-    for i, t in enumerate(("CameraX", "FusedLocation", "WorkManager", "FCM (push)")):
-        d.add(Rect(8 + i * 82, 20, 76, 28, rx=4, ry=4, fillColor=white, strokeColor=HexColor("#BBBBBB")))
-        d.add(String(46 + i * 82, 31, t, textAnchor="middle", fontName="Helvetica", fontSize=7, fillColor=dark))
-    # APIs externas
-    d.add(Rect(360, 8, 120, 284, rx=6, ry=6, fillColor=HexColor("#FFF6EC"), strokeColor=HexColor("#E0A030")))
-    d.add(String(420, 276, "APIS EXTERNAS", textAnchor="middle", fontName="Helvetica-Bold", fontSize=7, fillColor=HexColor("#8A5A00")))
-    ext = [("Firebase Auth /", "Google Sign-In"), ("Cloud Firestore", "(datos)"), ("Cloud Storage", "(imágenes)"), ("Cloud Functions", "(lógica segura)"),
-           ("Wompi", "(pagos: tarjeta, PSE, Nequi)"), ("Google Maps / Geocoder", "(ubicación)")]
-    for i, (a, b) in enumerate(ext):
-        y = 232 - i * 40
-        d.add(Rect(368, y, 104, 32, rx=4, ry=4, fillColor=white, strokeColor=HexColor("#E0A030")))
-        d.add(String(420, y + 19, a, textAnchor="middle", fontName="Helvetica-Bold", fontSize=6.8, fillColor=DARK))
-        d.add(String(420, y + 8, b, textAnchor="middle", fontName="Helvetica", fontSize=6, fillColor=dark))
-    d.add(Line(340, 100, 360, 100, strokeColor=HexColor("#E0A030"), strokeWidth=1.2))
-    d.add(Line(340, 145, 360, 145, strokeColor=HexColor("#E0A030"), strokeWidth=1.2, strokeDashArray=[2, 2]))
+    box(0, 262, 340, 30, "UI: Activities y Fragments (XML + ViewBinding) con Navigation Component", DARK, fs=7)
+    for i, (n, col) in enumerate((("Comprador", M.BUYER), ("Vendedor", M.SELLER), ("Administrador", M.ADMIN))):
+        box(i * 113, 222, 114 if i == 2 else 110, 30, n, col, sub="tema, grafo y menús propios")
+    box(0, 180, 340, 32, "RoleHostActivity: Toolbar + Drawer + Bottom Navigation + NavHost", HexColor("#3B7A8F"), fs=7)
+    box(0, 120, 340, 50, "Contratos (data/Services.kt)", HexColor("#6B4E9B"), sub="AuthRepository · UserRepository · ProductRepository · CartRepository · OrderRepository · ImageStorage", fs=8)
+    box(0, 76, 340, 34, "Implementaciones Firebase (data/firebase)", HexColor("#7A5C3E"), sub="repositorios con Flow (listeners en tiempo real) y corrutinas", fs=8)
+    d.add(Rect(0, 4, 340, 62, rx=5, ry=5, fillColor=HexColor("#F3F3F3"), strokeColor=HexColor("#BBBBBB")))
+    d.add(String(8, 54, "SERVICIOS DEL DISPOSITIVO", fontName="Helvetica-Bold", fontSize=6.5, fillColor=dark))
+    for i, t in enumerate(("BiometricVault", "LocationHelper", "ImagePicker", "Epayco (WebView)")):
+        d.add(Rect(8 + i * 82, 12, 76, 28, rx=4, ry=4, fillColor=white, strokeColor=HexColor("#BBBBBB")))
+        d.add(String(46 + i * 82, 23, t, textAnchor="middle", fontName="Helvetica", fontSize=6.8, fillColor=dark))
+    d.add(Rect(360, 4, 120, 288, rx=6, ry=6, fillColor=HexColor("#FFF6EC"), strokeColor=HexColor("#E0A030")))
+    d.add(String(420, 278, "SERVICIOS EXTERNOS", textAnchor="middle", fontName="Helvetica-Bold", fontSize=7, fillColor=HexColor("#8A5A00")))
+    ext = [("Firebase Authentication", "(correo y contraseña)"), ("Cloud Firestore", "(usuarios, productos, órdenes)"),
+           ("Cloud Storage", "(fotos)"), ("Google Location + Geocoder", "(ubicación y dirección)"),
+           ("ePayco", "(checkout y validación)"), ("Android Keystore", "(huella y cifrado)")]
+    for i, (a_, b_) in enumerate(ext):
+        y = 232 - i * 41
+        d.add(Rect(368, y, 104, 33, rx=4, ry=4, fillColor=white, strokeColor=HexColor("#E0A030")))
+        d.add(String(420, y + 20, a_, textAnchor="middle", fontName="Helvetica-Bold", fontSize=6.5, fillColor=DARK))
+        d.add(String(420, y + 9, b_, textAnchor="middle", fontName="Helvetica", fontSize=6, fillColor=dark))
+    for y in (93, 40):
+        d.add(Line(340, y, 360, y, strokeColor=HexColor("#E0A030"), strokeWidth=1.2))
     return d
 
 
@@ -310,12 +310,13 @@ def build():
 
     # 1. Introducción
     story += [P("1. Introducción", "H1"),
-              P("Este documento presenta la <b>planeación</b> de <b>Tramas</b>, una tienda virtual para dispositivos Android desarrollada de forma nativa (Kotlin). "
-                "Reúne el levantamiento de requerimientos funcionales y no funcionales, el marco normativo del comercio electrónico en Colombia, "
-                "una propuesta de arquitectura modular y los mockups de la aplicación diferenciados por rol de usuario: Vendedor, Comprador y Administrador."),
-              P("Fue construido con la finalidad de <b>establecer las bases lógicas del proyecto antes de escribir código</b>: acordar qué debe hacer la aplicación, "
-                "bajo qué restricciones legales y de calidad debe operar y cómo se relacionan los actores entre sí. Con esto se reducen reprocesos, se facilita "
-                "la estimación del esfuerzo y se dispone de un documento de referencia común para el equipo de desarrollo, el diseño y la validación."),
+              P("Este documento es la <b>documentación técnica definitiva</b> de <b>Tramas</b>, una tienda virtual para dispositivos Android desarrollada de forma nativa (Kotlin). "
+                "Reúne el levantamiento de requerimientos funcionales y no funcionales, el marco normativo del comercio electrónico en Colombia, el diseño de las interfaces "
+                "diferenciadas por rol (Vendedor, Comprador y Administrador) y la descripción de lo que realmente se construyó: arquitectura, modelo de datos, seguridad, "
+                "integraciones (Firebase, geolocalización de Google y ePayco), pruebas y despliegue."),
+              P("Fue construido con la finalidad de <b>dejar un documento coherente con el aplicativo entregado</b>: que cualquier persona pueda entender qué hace la aplicación, "
+                "bajo qué restricciones legales y de calidad opera, cómo está organizado el código y cómo se configura y se prueba. Las secciones 1 a 5 conservan la planeación "
+                "(requerimientos y diseño) y la sección 6 documenta la implementación final y cómo cada requerimiento quedó cubierto."),
               P("El documento cubre las secciones mínimas exigidas para la aplicación: <i>Inicio, Autenticación, Administración de Usuarios, Administración de Productos, "
                 "CRUD de Usuario, CRUD de Productos, CRUD de Carrito, Pasarela de Pagos y CRUD de Perfil</i>, e incorpora el uso de cámara, geolocalización, "
                 "ingreso con huella y APIs externas para autenticación, almacenamiento y pagos."),
@@ -346,18 +347,20 @@ def build():
         ("Vendedor", "Publicar y vender sus productos.", "CRUD de productos con cámara y ubicación, control de stock, gestionar pedidos, perfil de tienda, reportes de ventas."),
         ("Administrador", "Garantizar la calidad y el cumplimiento de la plataforma.", "CRUD de usuarios, suspender cuentas, moderar productos, gestionar categorías, auditoría, pagos y reportes."),
     ], [2.6 * cm, 5.2 * cm, 9.2 * cm]), Spacer(1, 8)]
-    story += [P("2.5 Arquitectura modular propuesta", "H2"),
-              P("La aplicación se plantea con <b>MVVM + Clean Architecture</b> y un proyecto Gradle <b>multi-módulo</b>. Cada funcionalidad vive en su propio módulo "
-                "(<i>feature</i>) y depende únicamente de <i>core-domain</i>, que define casos de uso e interfaces; los proveedores externos (autenticación, almacenamiento, pagos) "
-                "se implementan en <i>core-data</i>, de modo que pueden sustituirse sin modificar la interfaz. Esto facilita el trabajo en paralelo, las pruebas y la escalabilidad."),
-              KeepTogether([arch_diagram(), P("Figura 1. Arquitectura modular de Tramas y servicios externos.", "cap")])]
+    story += [P("2.5 Arquitectura de la aplicación", "H2"),
+              P("La aplicación usa una <b>arquitectura por capas</b> con contratos entre la interfaz y los datos. Las pantallas (Activities y Fragments con layouts XML y ViewBinding) "
+                "solo conocen las <b>interfaces</b> de <i>data/Services.kt</i>; las implementaciones de Firebase viven en <i>data/firebase</i> y se instalan al abrir la app "
+                "(clase <i>TramasApp</i>). Un único contenedor, <i>RoleHostActivity</i>, sirve a los tres roles: cada uno aporta su tema, su grafo de navegación y sus menús. "
+                "Esto permite cambiar de proveedor sin tocar la interfaz y probar las pantallas con un backend en memoria."),
+              KeepTogether([arch_diagram(), P("Figura 1. Arquitectura implementada de Tramas y servicios externos.", "cap")])]
     story += [table(["Componente", "Tecnología / API", "Uso en Tramas"], [
-        ("Lenguaje y UI", "Kotlin, Jetpack Compose, Material 3, Navigation", "Interfaz declarativa y navegación por rol."),
-        ("Autenticación", "Firebase Authentication, Google Sign-In (OAuth 2.0), BiometricPrompt", "Registro, login, custom claims por rol y desbloqueo con huella."),
-        ("Almacenamiento", "Cloud Firestore, Cloud Storage, Room (caché local)", "Usuarios, productos, carritos y pedidos; imágenes; uso sin conexión."),
-        ("Pagos", "Wompi (tarjeta, PSE, Nequi) con Cloud Functions y webhooks", "Cobro tokenizado y confirmación de transacciones."),
-        ("Cámara y ubicación", "CameraX, FusedLocationProvider, Geocoder", "Fotos de productos y perfil; cercanía y direcciones."),
-        ("Otros", "Hilt, Coil, Paging 3, WorkManager, FCM, Crashlytics", "Inyección de dependencias, imágenes, listas, tareas en segundo plano, notificaciones y monitoreo."),
+        ("Lenguaje y UI", "Kotlin, layouts XML, Material 3, ViewBinding, Navigation Component", "Pantallas por rol, navegación con menú lateral y barra inferior."),
+        ("Autenticación", "Firebase Authentication (correo y contraseña), BiometricPrompt + Android Keystore", "Registro, login, recuperación de contraseña y huella (la contraseña se guarda cifrada con una llave protegida por la huella)."),
+        ("Base de datos", "Cloud Firestore", "Usuarios, productos, carritos y órdenes en tiempo real, con reglas de seguridad por rol."),
+        ("Imágenes", "Firebase Storage, Coil", "Fotos de productos y de perfil (cámara o galería); plan B dentro de Firestore si Storage no está activo."),
+        ("Pagos", "ePayco (Checkout estándar y servicio de validación)", "Cobro con tarjeta, PSE u otros medios y confirmación del estado de la transacción."),
+        ("Ubicación", "Fused Location Provider (Google Play Services) y Geocoder", "Ubicación del usuario asociada a la dirección de entrega y cálculo de cercanía."),
+        ("Calidad", "JUnit, Robolectric, GitHub Actions", "Pruebas de precios y de pantallas; compilación y APK en cada push."),
     ], [3.0 * cm, 6.4 * cm, 7.6 * cm])]
 
     # 3. Normatividad
@@ -410,22 +413,73 @@ def build():
     ], [6.2 * cm, 5.0 * cm, 5.8 * cm])]
 
 
-    # 6. Interfaces implementadas
-    story += [PageBreak(), P("6. Interfaces implementadas", "H1"),
-              P("Esta sección documenta el frontend construido en la Actividad 3, para mantener la documentación coherente con el desarrollo. "
-                f"El código fuente y el APK de validación están en el repositorio público <b>{REPO_URL}</b>."),
-              P("6.1 Resumen técnico", "H2"),
-              table(["Aspecto", "Implementación"], [
-                  ("Plataforma", "Android nativo en Kotlin; minSdk 26 (Android 8.0), compileSdk 35."),
-                  ("Interfaz", "Layouts XML con ConstraintLayout, LinearLayout, FrameLayout y NestedScrollView; Material Components (MaterialCardView, TextInputLayout, Chip, TabLayout, BottomNavigationView, NavigationView); ViewBinding."),
-                  ("Navegación", "Navigation Component: un grafo por rol (nav_buyer, nav_seller, nav_admin), menú lateral y barra inferior por rol; una activity contenedora compartida (RoleHostActivity)."),
-                  ("Recursos", "Paleta propia en colors.xml; un tema por rol en themes.xml; estilos de botones, campos, tarjetas, chips y tipografías en styles.xml; textos en español en strings.xml; íconos e ilustraciones vectoriales en drawable."),
-                  ("Listas", "RecyclerView con un BindingAdapter genérico (ViewBinding) y gráfico propio (BarChartView) dibujado con Canvas."),
-                  ("Hardware", "Huella con BiometricPrompt; cámara mediante el contrato TakePicturePreview; ubicación con LocationManager y permiso en tiempo de ejecución."),
-                  ("Datos", "Repositorio en memoria con datos de ejemplo y CRUD funcional de usuarios, productos y carrito (sin persistencia)."),
-              ], [3.2 * cm, 13.8 * cm]),
-              P("6.2 Capturas de la aplicación", "H2"),
-              P("Las capturas se generaron automáticamente con pruebas Robolectric sobre las mismas pantallas del APK.")]
+    # 6. Implementación del aplicativo
+    story += [PageBreak(), P("6. Implementación del aplicativo", "H1"),
+              P("Esta sección documenta lo que se construyó y lo contrasta con la planeación. "
+                f"El código fuente completo y comentado está en el repositorio público <b>{REPO_URL}</b>; la guía para configurarlo (Firebase y ePayco) está en <i>docs/CONFIGURACION.md</i>."),
+              P("6.1 Arquitectura implementada", "H2"),
+              P("La Figura 1 (sección 2.5) resume las capas. El paquete <i>com.tramas.app</i> se organiza así:"),
+              table(["Paquete", "Responsabilidad"], [
+                  ("ui/auth", "Splash, login (correo y huella), registro y recuperación de contraseña."),
+                  ("ui/host", "RoleHostActivity: contenedor común (Toolbar, menú lateral, barra inferior y NavHost) y las tres activities de rol."),
+                  ("ui/buyer, ui/seller, ui/admin", "Un Fragment por pantalla de cada rol (inicio, catálogo, detalle, carrito, pago, pedidos, perfil, productos, usuarios, reportes...)."),
+                  ("ui/common", "Utilidades de interfaz: BindingAdapter genérico, ImagePicker (cámara/galería), LocationHelper, BiometricHelper, carga de imágenes y gráfico BarChartView."),
+                  ("ui/payment", "EpaycoCheckoutActivity: WebView con el checkout de ePayco."),
+                  ("data", "Modelos, contratos (Services.kt), reglas de precio (Pricing) y sesión."),
+                  ("data/firebase", "Implementaciones de los contratos con Firebase Authentication, Firestore y Storage."),
+                  ("data/payment", "Configuración de ePayco y verificación de la transacción."),
+                  ("security", "BiometricVault: cifrado de la contraseña con una llave del Keystore protegida por la huella."),
+              ], [4.2 * cm, 12.8 * cm]),
+              P("6.2 Modelo de datos en Firestore", "H2"),
+              table(["Colección", "Campos principales"], [
+                  ("users/{uid}", "name, email, phone, role (BUYER | SELLER | ADMIN), active, address, lat, lng, photoUrl, nit, craft, radiusKm"),
+                  ("users/{uid}/cart/{productId}", "name, price, qty, stock, category, sellerId, sellerName, imageUrl (copia del producto para mostrar el carrito sin consultas extra)"),
+                  ("products/{id}", "name, description, price (COP, entero), stock, category, sellerId, sellerName, status (PENDING | ACTIVE | REJECTED), lat, lng, imageUrl, createdAt"),
+                  ("orders/{id}", "buyerId, buyerName, buyerEmail, items[] (productId, name, price, qty, category, sellerId), sellerIds[], subtotal, iva, shipping, total, "
+                                  "status, address, lat, lng, paymentRef, paymentState, paymentMode (EPAYCO | SIMULADO), createdAt"),
+              ], [4.2 * cm, 12.8 * cm]),
+              P("Las consultas usan un solo filtro (por estado, vendedor o comprador) y el orden se aplica en el cliente, de modo que Firestore no necesita índices compuestos.")]
+
+    story += [P("6.3 Seguridad y control de acceso", "H2"),
+              P("El rol se guarda en <i>users/{uid}.role</i> y se hace cumplir en el servidor con las reglas de <i>firebase/firestore.rules</i>; la interfaz solo cambia lo que se muestra. "
+                "Resumen de las reglas:"),
+              table(["Colección", "Lectura", "Escritura"], [
+                  ("users", "El propio usuario o un administrador.", "Cada usuario crea su perfil solo como Comprador o Vendedor y no puede cambiar su rol ni su estado; el administrador gestiona todos."),
+                  ("users/…/cart", "Solo su dueño.", "Solo su dueño."),
+                  ("products", "Cualquier usuario autenticado.", "El vendedor crea productos propios en estado PENDING y los edita sin cambiar el estado; el administrador modera; cualquier comprador solo puede descontar stock."),
+                  ("orders", "Comprador, vendedores involucrados y administrador.", "El comprador la crea y registra el pago; el vendedor y el administrador actualizan el estado."),
+                  ("Storage: products/, users/{uid}/", "Usuarios autenticados.", "Solo imágenes de menos de 3 MB; las de perfil, únicamente su dueño."),
+              ], [3.6 * cm, 5.2 * cm, 8.2 * cm]),
+              P("Además: la contraseña nunca se guarda en el dispositivo en texto plano (solo cifrada y desbloqueable con la huella), los datos de tarjeta los captura ePayco y las llaves "
+                "(ePayco) se leen de <i>local.properties</i>, que no se sube a Git.")]
+
+    story += [P("6.4 Flujos principales", "H2"), P("Inicio de sesión con huella", "H3")]
+    story += bullets([
+        "Tras iniciar sesión con correo y contraseña, la app ofrece <b>activar la huella</b>. Si el usuario acepta, el sistema pide la huella y con la llave que esta desbloquea se cifra y guarda la contraseña (AES-GCM, Android Keystore).",
+        "En los siguientes ingresos, <b>Ingresar con huella</b> pide la huella, descifra la contraseña y autentica contra Firebase. La huella nunca sale del sistema operativo.",
+        "Si el usuario registra o borra huellas en el teléfono, la llave se invalida y la app pide volver a iniciar sesión con contraseña.",
+    ])
+    story += [P("Compra y pago", "H3")]
+    story += bullets([
+        "El comprador agrega productos al <b>carrito</b> (Firestore); el resumen calcula subtotal, IVA 19 % y envío.",
+        "En el <b>pago</b> escribe la dirección o usa <b>Usar mi ubicación</b>: se obtiene la ubicación con el Fused Location Provider, se convierte en dirección con Geocoder y se guarda junto a la orden.",
+        "Al pagar se crea la <b>orden en estado Pendiente de pago</b> y se abre el checkout de ePayco; el comprador elige el medio de pago y paga en la página de ePayco.",
+        "Al volver, la app <b>consulta a ePayco el estado real</b> de la transacción. Si fue aprobada: la orden pasa a <b>Pagado</b>, se descuenta el inventario y se vacía el carrito. Si está pendiente o fue rechazada, se registra y se informa.",
+        "La orden aparece en el <b>historial del comprador</b> y en los <b>pedidos del vendedor</b>, quien la avanza a Preparando, Enviado y Entregado; el administrador la ve en los reportes.",
+        "Si no hay llave de ePayco configurada, el pago se registra como <b>SIMULADO</b> (marcado en la orden) para poder probar el flujo.",
+    ])
+
+    story += [P("6.5 Servicios de Google y de terceros", "H2"),
+              table(["Servicio", "Uso", "Clases"], [
+                  ("Firebase Authentication", "Registro, inicio y cierre de sesión, recuperación de contraseña, eliminación de cuenta.", "FirebaseAuthRepo"),
+                  ("Cloud Firestore", "Persistencia de usuarios, productos, carritos y órdenes con actualización en tiempo real.", "FirestoreUserRepo, FirestoreProductRepo, FirestoreCartRepo, FirestoreOrderRepo"),
+                  ("Firebase Storage", "Fotos de productos y de perfil.", "FirebaseImageStorage"),
+                  ("Fused Location Provider + Geocoder", "Ubicación del usuario y dirección de entrega.", "LocationHelper"),
+                  ("BiometricPrompt + Keystore", "Ingreso con huella.", "BiometricVault, BiometricHelper"),
+                  ("ePayco", "Cobro y verificación de la transacción.", "EpaycoCheckoutActivity, EpaycoApi"),
+              ], [4.2 * cm, 7.0 * cm, 5.8 * cm]),
+              P("6.6 Interfaces implementadas", "H2"),
+              P("Las capturas siguientes se generaron con las pruebas automáticas sobre un backend en memoria; las capturas del aplicativo en un dispositivo físico, con datos reales, están en el <b>Manual de usuario</b>.")]
     story += shot_rows(title="Transversal (todos los roles)", items=[
         ("00_splash", "Splash"), ("01_login", "Inicio de sesión y huella"), ("02_register", "Registro"), ("03_forgot", "Recuperar contraseña")])
     story += shot_rows(title="Comprador", items=[
@@ -438,27 +492,48 @@ def build():
     story += shot_rows(title="Administrador", items=[
         ("admin_00_start", "Dashboard"), ("admin_01_adminUsersFragment", "Gestión de usuarios"), ("admin_02_userFormFragment", "Editar usuario"),
         ("admin_03_adminProductsFragment", "Gestión de productos"), ("admin_04_adminSalesFragment", "Reporte de ventas")])
-    story += [P("6.3 Ajustes respecto al diseño inicial", "H2"),
-              table(["Elemento", "Diseño inicial (Actividad 2)", "Implementación (Actividad 3)"], [
-                  ("Barra inferior del comprador", "Inicio, Buscar, Carrito, Perfil", "Inicio, Catálogo, Carrito, Perfil; Mis pedidos se agrega al menú lateral."),
-                  ("Barra inferior del vendedor", "Panel, Productos, Pedidos, Tienda", "Productos, Pedidos, Perfil; los indicadores del panel se integran en la pantalla Productos."),
-                  ("Cámara", "CameraX", "Captura mediante la aplicación de cámara del sistema (TakePicturePreview)."),
-                  ("Geolocalización", "FusedLocationProvider y Geocoder", "LocationManager con permiso en tiempo de ejecución; muestra coordenadas, sin mapa interactivo."),
-                  ("Pagos", "Wompi con Cloud Functions y webhooks", "Pasarela simulada: valida los datos, muestra procesamiento y confirma el pedido. La integración con Wompi queda para la siguiente fase."),
-                  ("Datos", "Firebase Auth, Firestore y Storage", "Repositorio en memoria con datos de ejemplo; la conexión a Firebase queda para la siguiente fase."),
-                  ("Autenticación", "Correo, Google y huella", "Correo con validaciones y huella con BiometricPrompt (modo demostración si no hay huella registrada); Google queda pendiente."),
-              ], [3.6 * cm, 5.2 * cm, 8.2 * cm]),
-              CondPageBreak(9 * cm), P("6.4 Estado de las interfaces por módulo", "H2"),
-              table(["Módulo", "Interfaz", "Pendiente (fase de backend)"], [
-                  ("AUT – Autenticación", "Splash, login, huella, registro, recuperar contraseña", "Firebase Auth, Google Sign-In, tokens y roles en servidor"),
-                  ("HOM – Inicio", "Inicio, catálogo con búsqueda y filtros, navegación por rol", "Paginación, consulta por cercanía real"),
-                  ("USR – Usuarios", "Listado, crear, editar y eliminar", "Cloud Functions, baja lógica y auditoría"),
-                  ("PER – Perfil", "Perfil con foto, datos, direcciones y preferencias; perfil de vendedor", "Subida a Storage, mapa, consentimientos en servidor"),
-                  ("PRD – Productos", "CRUD del vendedor, detalle, moderación, filtros", "Imágenes en Storage, reglas de seguridad, inventario transaccional"),
-                  ("CAR – Carrito", "Agregar, ver, modificar cantidad, eliminar, totales con IVA y envío", "Persistencia y sincronización"),
-                  ("PAG – Pagos y pedidos", "Resumen, método de pago, confirmación, historial, pedidos del vendedor", "Wompi, webhooks, notificaciones push, factura"),
-                  ("ADM – Administración", "Dashboard, reporte de ventas", "Métricas reales, auditoría, PQRS"),
-              ], [3.6 * cm, 7.0 * cm, 6.4 * cm])]
+
+    story += [CondPageBreak(9 * cm), P("6.7 Trazabilidad: requerimientos y código", "H2"),
+              table(["Requerimientos", "Implementación", "Estado"], [
+                  ("RF-AUT-01, 02, 05, 06, 07", "RegisterActivity, LoginActivity, ForgotPasswordActivity, RoleHostActivity.returnToLogin, firestore.rules", "Implementado"),
+                  ("RF-AUT-04 (huella)", "BiometricVault, BiometricHelper, LoginActivity, BuyerProfileFragment", "Implementado"),
+                  ("RF-AUT-03 (Google)", "—", "Pendiente"),
+                  ("RF-HOM-01, 02, 04", "HomeFragment, CatalogFragment, RoleHostActivity", "Implementado"),
+                  ("RF-HOM-03 (destacados editables)", "Los destacados se calculan (más recientes); no son editables por el administrador", "Parcial"),
+                  ("RF-USR-01 a 06", "AdminUsersFragment, UserFormFragment, FirestoreUserRepo", "Implementado"),
+                  ("RF-PER-01 a 04, 06, 07", "BuyerProfileFragment, SellerProfileFragment, ImagePicker, LocationHelper", "Implementado"),
+                  ("RF-PER-05 (consentimientos)", "Aceptación en el registro y preferencias de notificación; sin historial de cambios", "Parcial"),
+                  ("RF-PRD-01 a 07", "ProductFormFragment, SellerProductsFragment, AdminProductsFragment, FirestoreProductRepo", "Implementado"),
+                  ("RF-PRD-08 (categorías)", "Lista fija en Categories.all; sin CRUD", "Parcial"),
+                  ("RF-PRD-09 (reseñas)", "—", "Pendiente"),
+                  ("RF-CAR-01 a 05", "CartFragment, FirestoreCartRepo, Pricing", "Implementado"),
+                  ("RF-CAR-06 (revalidar precios)", "El stock se limita al agregar; el precio se toma del carrito", "Parcial"),
+                  ("RF-PAG-01 a 04", "CheckoutFragment, EpaycoCheckoutActivity, EpaycoApi", "Implementado"),
+                  ("RF-PAG-05, 07, 08", "BuyerOrdersFragment, SellerOrdersFragment, AdminSalesFragment (reporte CSV al portapapeles)", "Implementado"),
+                  ("RF-PAG-05 (comprobante PDF), 06 (retracto), RF-PAG-07 (push)", "—", "Pendiente"),
+                  ("RF-ADM-01", "AdminDashboardFragment (indicadores y gráfico en tiempo real)", "Implementado"),
+                  ("RF-ADM-02, 03 (auditoría, PQRS)", "—", "Pendiente"),
+              ], [4.6 * cm, 9.6 * cm, 2.8 * cm]),
+              P("6.8 Pruebas, versionamiento y despliegue", "H2")]
+    story += bullets([
+        "<b>Pruebas unitarias (JUnit):</b> reglas de precio del carrito (IVA 19 % y envío).",
+        "<b>Pruebas de pantallas (Robolectric):</b> infla las 20 pantallas de los tres roles con un backend en memoria y genera sus capturas; otra prueba comprueba que, sin Firebase configurado, la app abre el login y avisa en vez de cerrarse.",
+        "<b>Versionamiento con Git y GitHub:</b> el código está en " + REPO_URL + ". El README explica la estructura y la puesta en marcha.",
+        "<b>Despliegue continuo:</b> el flujo de GitHub Actions (<i>.github/workflows/android.yml</i>) compila, ejecuta las pruebas y publica el APK de depuración como artefacto en cada push.",
+        "<b>Comentarios en el código:</b> todas las clases y los métodos relevantes llevan comentarios KDoc que explican su propósito y su lógica.",
+    ])
+    story += [P("6.9 Ajustes respecto a la planeación y trabajo futuro", "H2"),
+              table(["Elemento", "Planeación", "Resultado final"], [
+                  ("Interfaz", "Jetpack Compose", "Vistas XML con ViewBinding y Material 3 (alineado con el contenido del curso)."),
+                  ("Arquitectura", "Multi-módulo con MVVM y Clean Architecture", "Capas ui / data con contratos intercambiables; módulos Gradle por funcionalidad quedan como evolución."),
+                  ("Pasarela de pagos", "Wompi con Cloud Functions y webhooks", "ePayco (checkout estándar) con verificación de la transacción desde la app; el webhook en servidor queda como mejora."),
+                  ("Cámara", "CameraX", "Cámara del sistema (TakePicture + FileProvider) o galería, con reducción de la imagen antes de subirla."),
+                  ("Autenticación", "Correo, Google y huella", "Correo y huella; Google queda pendiente."),
+                  ("Roles", "Custom claims de Firebase", "Campo role en Firestore validado por reglas de seguridad."),
+                  ("Eliminar usuario", "Baja lógica y anonimización", "Se elimina el perfil y se bloquea el acceso; borrar la cuenta de Authentication requiere Admin SDK."),
+              ], [3.2 * cm, 5.4 * cm, 8.4 * cm]),
+              P("<b>Mejoras futuras:</b> inicio con Google, notificaciones push (FCM), webhook de ePayco en un servidor (Cloud Functions), CRUD de categorías, reseñas, auditoría, retracto y comprobante en PDF, "
+                "mapa interactivo (Google Maps SDK) y modularización por funcionalidad.")]
 
     # 7. Referencias
     story += [PageBreak(), P("7. Referencias", "H1")]

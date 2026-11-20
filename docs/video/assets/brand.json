@@ -1,0 +1,24 @@
+{
+  "name": "Tramas",
+  "tagline": "Lo hecho a mano, cerca de ti",
+  "colors": {
+    "teal": "#0F5C54",
+    "tealDark": "#0A3F3A",
+    "tealSoft": "#E1EFEC",
+    "terracotta": "#B5472A",
+    "indigo": "#27386B",
+    "ochre": "#E9A23B",
+    "canvas": "#FAF7F2",
+    "ink": "#1F2328"
+  },
+  "roleColors": {
+    "Comprador": "#0F5C54",
+    "Vendedor": "#B5472A",
+    "Administrador": "#27386B"
+  },
+  "fonts": {
+    "display": "Roboto (700)",
+    "body": "Roboto (400/500)"
+  },
+  "pattern": "Franja de triángulos tipo tejido wayúu en ocre/blanco (ver app/src/main/res/drawable/pattern_zigzag.xml)"
+}
