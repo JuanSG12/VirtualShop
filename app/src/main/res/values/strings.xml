@@ -85,7 +85,7 @@
     <string name="olvidaste_tu_contrasena">¿Olvidaste tu contraseña?</string>
     <string name="pagaras_de_forma_segura_con_epayco_tar">Pagarás de forma segura con ePayco: tarjeta de crédito o débito, PSE, Nequi o efectivo. Tus datos de pago no pasan por Tramas.</string>
     <string name="pago_seguro_con_epayco">Pago seguro con ePayco</string>
-    <string name="pago_seguro_procesado_por_wompi_tramas">Pago seguro procesado por Wompi. Tramas no almacena los datos de tu tarjeta.</string>
+    <string name="pago_seguro_procesado_por_wompi_tramas">Pago seguro procesado por Davipay (ePayco). Tramas no almacena los datos de tu tarjeta.</string>
     <string name="panel">Panel</string>
     <string name="pasarela_de_pagos">Pasarela de pagos</string>
     <string name="pedidos">Pedidos</string>

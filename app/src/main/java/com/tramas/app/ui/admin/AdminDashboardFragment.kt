@@ -17,6 +17,7 @@ import com.tramas.app.databinding.FragmentAdminDashboardBinding
 import com.tramas.app.databinding.ViewStatCardBinding
 import com.tramas.app.ui.common.collectFlow
 import com.tramas.app.ui.common.confirm
+import com.tramas.app.ui.common.cop
 import com.tramas.app.ui.common.launchSafe
 import com.tramas.app.ui.common.snack
 import java.util.Calendar
@@ -63,7 +64,9 @@ class AdminDashboardFragment : Fragment() {
         kpi(b.kpiUsers, R.drawable.ic_users, users.size.toString(), R.string.kpi_users)
         kpi(b.kpiProducts, R.drawable.ic_box, products.size.toString(), R.string.kpi_products)
         kpi(b.kpiOrders, R.drawable.ic_list, today.toString(), R.string.kpi_orders_today)
-        kpi(b.kpiSales, R.drawable.ic_trend, "$ " + String.format(Locale("es", "CO"), "%.1f M", month / 1_000_000.0), R.string.kpi_sales_month)
+        // Millones ("$ 42,3 M") solo a partir de 1 millón; por debajo se muestra el valor completo en pesos.
+        val monthText = if (month >= 1_000_000) "$ " + String.format(Locale("es", "CO"), "%.1f M", month / 1_000_000.0) else month.cop()
+        kpi(b.kpiSales, R.drawable.ic_trend, monthText, R.string.kpi_sales_month)
 
         // Gráfico: ventas de los últimos 7 días (en millones de pesos), etiquetadas con la inicial del día.
         val letters = listOf("D", "L", "M", "X", "J", "V", "S")

@@ -36,13 +36,13 @@ SHOTS = {
     "b03_detalle": ("Detalle de producto", "buyer_02_productDetailFragment"),
     "b04_carrito": ("Carrito", "buyer_03_cartFragment"),
     "b05_pago": ("Pago: dirección", "buyer_04_checkoutFragment"),
-    "b06_ubicacion": ("Ubicación capturada", None),
-    "b07_epayco": ("Pasarela ePayco", None),
+    "b06_ubicacion": ("Pago con ubicación", None),
+    "b07_epayco": ("Pasarela Davipay/ePayco", None),
     "b08_pago_aprobado": ("Pago aprobado", None),
     "b09_pedidos": ("Mis pedidos", "buyer_05_buyerOrdersFragment"),
     "b10_perfil": ("Mi perfil", "buyer_06_buyerProfileFragment"),
     "v01_productos": ("Mis productos", "seller_00_start"),
-    "v02_formulario": ("Nuevo producto", "seller_01_productFormFragment"),
+    "v02_formulario": ("Formulario de producto", "seller_01_productFormFragment"),
     "v03_foto_opciones": ("Cámara o galería", None),
     "v04_pedidos": ("Pedidos recibidos", "seller_02_sellerOrdersFragment"),
     "v05_perfil": ("Perfil de vendedor", "seller_03_sellerProfileFragment"),
@@ -191,9 +191,9 @@ def build():
     st += section("4.5 Pagar", "El pago tiene tres pasos: dirección de entrega, pago con ePayco y confirmación.", [
         "Escribe tu <b>dirección de entrega</b>, o toca <b>Usar mi ubicación</b> para que la app la complete con tu posición actual.",
         "Revisa el resumen, acepta los términos y toca <b>Pagar</b>.",
-        "Se abre la pasarela segura de <b>ePayco</b>: elige el medio de pago (tarjeta, PSE u otros) y completa el pago allí. Tramas no ve los datos de tu tarjeta.",
+        "Se abre la pasarela segura de <b>Davipay (ePayco)</b>: elige el medio de pago (tarjeta, PSE u otros) y completa el pago allí. Tramas no ve los datos de tu tarjeta.",
         "Al volver, la app confirma el estado de la transacción. Si fue aprobada verás <b>¡Pago aprobado!</b>, tu carrito queda vacío y el pedido aparece en <b>Mis pedidos</b>.",
-    ], ["b05_pago", "b06_ubicacion", "b07_epayco", "b08_pago_aprobado"],
+    ], ["b06_ubicacion", "b07_epayco", "b08_pago_aprobado"],
         note="Si el pago queda pendiente o es rechazado, la app te lo informa y puedes intentar de nuevo desde el carrito.")
     st += section("4.6 Mis pedidos", "Historial de tus compras con su estado: Pendiente de pago, Pagado, Preparando, Enviado o Entregado. Cambia solo cuando el vendedor avanza el pedido.", [
         "Abre el menú lateral y toca <b>Mis pedidos</b>.",
