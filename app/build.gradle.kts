@@ -31,6 +31,8 @@ android {
         // ePayco: llave pública de pruebas (Dashboard ePayco > Configuración > Llaves API).
         buildConfigField("String", "EPAYCO_PUBLIC_KEY", "\"${localProps.getProperty("EPAYCO_PUBLIC_KEY", "")}\"")
         buildConfigField("boolean", "EPAYCO_TEST", localProps.getProperty("EPAYCO_TEST", "true"))
+        // Solo para el checkout v2 (crea la sesión de pago). Usar SIEMPRE la llave de PRUEBAS: una llave privada dentro de un APK es extraíble.
+        buildConfigField("String", "EPAYCO_PRIVATE_KEY", "\"${localProps.getProperty("EPAYCO_PRIVATE_KEY", "")}\"")
     }
 
     buildTypes {

@@ -12,7 +12,11 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import com.tramas.app.data.payment.EpaycoApi
+import kotlinx.coroutines.launch
 import com.tramas.app.R
 import com.tramas.app.data.payment.EpaycoConfig
 import com.tramas.app.databinding.ActivityEpaycoBinding
@@ -69,8 +73,39 @@ class EpaycoCheckoutActivity : AppCompatActivity() {
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) { b.progress.isVisible = true }
             override fun onPageFinished(view: WebView, url: String) { b.progress.isVisible = false }
         }
-        b.web.loadDataWithBaseURL("https://checkout.epayco.co", checkoutHtml(), "text/html", "UTF-8", null)
+        // v2: primero se crea la sesión de pago; v1: se abre directo con la llave pública.
+        lifecycleScope.launch {
+            try {
+                val html = if (EpaycoConfig.useSession) sessionHtml(createSession()) else checkoutHtml()
+                b.web.loadDataWithBaseURL("https://checkout.epayco.co", html, "text/html", "UTF-8", null)
+            } catch (e: Exception) {
+                Toast.makeText(this@EpaycoCheckoutActivity, e.message ?: getString(R.string.payment_start_error), Toast.LENGTH_LONG).show()
+                setResult(Activity.RESULT_CANCELED)
+                finish()
+            }
+        }
     }
+
+    /** Checkout v2: crea la sesión de pago en ePayco con el monto de la orden y devuelve su id. */
+    private suspend fun createSession(): String = EpaycoApi.createSession(
+        description = intent.getStringExtra("description") ?: "Compra en Tramas",
+        invoice = intent.getStringExtra("orderId").orEmpty(),
+        amount = intent.getLongExtra("total", 0),
+        tax = intent.getLongExtra("tax", 0),
+    )
+
+    /** Página HTML del checkout v2: abre la sesión en modo "standard" (página completa de ePayco, redirige a la URL de respuesta). */
+    private fun sessionHtml(sessionId: String): String = """
+        <html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+        <body style="font-family:sans-serif;text-align:center;padding:40px;color:#555">
+        <p>Abriendo pasarela de pago…</p>
+        <script src="https://checkout.epayco.co/checkout-v2.js"></script>
+        <script>
+          var checkout = ePayco.checkout.configure({ sessionId: "$sessionId", type: "standard", test: ${EpaycoConfig.testMode} });
+          checkout.open();
+        </script>
+        </body></html>
+    """.trimIndent()
 
     /** Devuelve a la pantalla anterior el ref_payco que ePayco puso en la URL de respuesta. */
     private fun finishWith(url: Uri) {

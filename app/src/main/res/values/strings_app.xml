@@ -183,4 +183,5 @@
     <string name="user_not_found">El usuario ya no existe</string>
     <string name="sales_count">%1$d ventas en el periodo</string>
     <string name="toca_para_agregar_una_foto">Toca para agregar una foto</string>
+    <string name="payment_start_error">No se pudo abrir la pasarela de pago</string>
 </resources>

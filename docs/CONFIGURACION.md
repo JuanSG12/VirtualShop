@@ -27,17 +27,18 @@ El rol ADMIN no se puede elegir al registrarse (por seguridad). Para crear el pr
 3. Edita el campo **`role`** y cambia `BUYER` por `ADMIN`. Cierra sesión en la app y vuelve a entrar: verás el panel de administración.
 4. Desde ahí puedes crear más usuarios (vendedores, otros administradores) y pulsar **"Cargar productos de ejemplo"** en el dashboard.
 
-## 6. Pagos con ePayco
-1. Crea una cuenta en <https://dashboard.epayco.co> (puedes usar el modo **pruebas**).
-2. `Integraciones > Llaves API` y copia la **llave pública** (`PUBLIC_KEY`).
-3. En la raíz del proyecto crea (o edita) el archivo **`local.properties`** y agrega:
+## 6. Pagos con ePayco (hoy Davipay)
+ePayco pertenece ahora a Davivienda y su panel/documentación se encuentran en `dashboard.davipay.com` / `docs.davipay.com` (el panel antiguo era `dashboard.epayco.co`).
+1. Crea o abre tu cuenta del comercio y copia las **llaves** (en el panel: configuración / integraciones / llaves API): la **llave pública** (`PUBLIC_KEY`) y, si tu cuenta usa el checkout nuevo (v2), también la **llave privada** (`PRIVATE_KEY`).
+2. Agrégalas a `local.properties` (en la raíz del proyecto; **no se sube a Git**):
    ```
    EPAYCO_PUBLIC_KEY=tu_llave_publica
+   EPAYCO_PRIVATE_KEY=tu_llave_privada_de_PRUEBAS   # solo si tu cuenta usa checkout v2
    EPAYCO_TEST=true
    ```
-   Este archivo **no se sube a Git** (está en `.gitignore`).
-4. Compila de nuevo. En pruebas usa las **tarjetas de prueba** que publica ePayco en su documentación (sección "Datos de prueba").
-5. Sin llave pública, la app registra un pago **SIMULADO** (queda marcado como `SIMULADO` en la orden). Para la entrega final configura la llave.
+3. La app elige sola el modo: con llave privada crea una **sesión de pago** (checkout v2); con solo la pública usa el checkout clásico; sin llaves, registra un pago **SIMULADO** marcado en la orden.
+4. **Seguridad:** una llave privada dentro de una app es extraíble. Usa **solo la llave de pruebas**, no subas a Git un APK compilado con ella y regenera las llaves cuando termine el curso. En producción la sesión de pago debe crearla un servidor (por ejemplo una función en la nube).
+5. Tarjetas de prueba (documentación de ePayco, sección "Medios de pago en pruebas"): Visa `4575 6231 8229 0326`, vence `12/2027`, CVV `123` (aprobada); Visa `4151 6115 2758 3283` (fondos insuficientes, rechazada); Mastercard `5170 3944 9037 9427` (fallida); Amex `3731 1885 6457 642` (pendiente).
 
 ## 7. Ejecutar en un celular físico
 1. En el celular: `Ajustes > Acerca del teléfono` → toca 7 veces *Número de compilación* → `Opciones de desarrollador` → activa **Depuración USB**.
@@ -57,5 +58,6 @@ El rol ADMIN no se puede elegir al registrarse (por seguridad). Para crear el pr
 | Al abrir la app sale "Firebase no está configurado" | Falta `app/google-services.json` (o está en otra carpeta). Cópialo y compila de nuevo. |
 | "No tienes permiso para esta acción" | Las reglas de Firestore no están publicadas (paso 3.2) o el usuario no tiene el rol adecuado. |
 | El inicio de sesión falla con "correo o contraseña incorrectos" | Verifica que el método Correo/contraseña esté habilitado (paso 2). |
+| "No se pudo abrir la pasarela de pago" | Las llaves de `local.properties` son incorrectas, o la cuenta usa checkout v2 y falta `EPAYCO_PRIVATE_KEY`. |
 | Error de ruta con caracteres no ASCII en Windows | Mueve el proyecto a una ruta sin tildes (por ejemplo `C:\Tramas`). |
 | La huella no aparece disponible | El teléfono no tiene huella registrada o no es de clase "fuerte". |
