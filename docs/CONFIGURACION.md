@@ -7,7 +7,7 @@ La app necesita **tu propio proyecto de Firebase** y, para pagos reales de prueb
 2. En la página del proyecto pulsa el ícono de **Android** y registra la app:
    - **Nombre del paquete:** `com.tramas.app`
    - Pulsa *Registrar app* y **descarga `google-services.json`**.
-3. Copia `google-services.json` dentro de la carpeta **`app/`** del proyecto (junto a `app/build.gradle.kts`).
+3. Copia `google-services.json` dentro de la carpeta **`app/`** del proyecto (junto a `app/build.gradle.kts`) y en Android Studio usa `File > Sync Project with Gradle Files`.
 
 ## 2. Authentication
 `Compilación (Build) > Authentication > Comenzar > Método de acceso > Correo electrónico/contraseña > Habilitar > Guardar`.
@@ -44,6 +44,12 @@ El rol ADMIN no se puede elegir al registrarse (por seguridad). Para crear el pr
 2. Conéctalo por USB y acepta la huella digital de depuración.
 3. En Android Studio elige tu celular y pulsa ▶ (o instala `release/Tramas-debug.apk`).
 4. **Huella:** registra una huella en `Ajustes > Seguridad`. Inicia sesión con tu correo y, cuando la app lo pregunte, pulsa **Activar**. La próxima vez usa **"Ingresar con huella"**.
+
+## 8. Para la entrega (que el docente pueda ejecutar la app)
+1. **Sube tu `app/google-services.json` al repositorio.** Es lo que conecta la app con *tu* proyecto de Firebase; sin él, quien clone el repo verá el aviso "Firebase no está configurado". (Contiene identificadores del proyecto, no contraseñas; en la consola de Google Cloud puedes restringir la API key a tu paquete y a tu huella SHA-1.)
+2. Crea **tres usuarios de prueba** (uno por rol) y anótalos en la tabla de usuarios de prueba del `README.md`. El administrador se crea con el paso 5 de esta guía.
+3. Deja las reglas de Firestore/Storage publicadas (pasos 3 y 4) y, si usas ePayco, la llave pública en `local.properties` (no se sube; en el README indica que se configura según el paso 6).
+4. Verifica en una ventana de incógnito que el repositorio es público y que contiene `app/google-services.json`.
 
 ## Solución de problemas
 | Síntoma | Causa / solución |

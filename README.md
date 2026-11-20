@@ -18,6 +18,13 @@ App nativa Android en **Kotlin + XML (ViewBinding)** con **Firebase** (Authentic
 
 Sin `google-services.json` el proyecto compila, pero la app avisa que falta configurar Firebase.
 
+## Usuarios de prueba (completar antes de entregar)
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | *(completar)* | *(completar)* |
+| Vendedor | *(completar)* | *(completar)* |
+| Comprador | *(completar)* | *(completar)* |
+
 ## Funcionalidades
 | Componente | Dónde está en el código |
 |---|---|
