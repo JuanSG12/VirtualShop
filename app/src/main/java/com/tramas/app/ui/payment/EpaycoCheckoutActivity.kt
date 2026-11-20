@@ -70,7 +70,11 @@ class EpaycoCheckoutActivity : AppCompatActivity() {
                 if (url.toString().startsWith(EpaycoConfig.RESPONSE_URL)) { finishWith(url); return true }
                 return false
             }
-            override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) { b.progress.isVisible = true }
+            override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+                // Plan B por si la redirección de ePayco no pasa por shouldOverrideUrlLoading.
+                if (url.startsWith(EpaycoConfig.RESPONSE_URL)) { view.stopLoading(); finishWith(Uri.parse(url)); return }
+                b.progress.isVisible = true
+            }
             override fun onPageFinished(view: WebView, url: String) { b.progress.isVisible = false }
         }
         // v2: primero se crea la sesión de pago; v1: se abre directo con la llave pública.
