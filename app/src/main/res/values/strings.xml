@@ -14,6 +14,7 @@
     <string name="buscar_por_nombre_o_correo">Buscar por nombre o correo</string>
     <string name="buscar_producto">Buscar producto</string>
     <string name="cancelar">Cancelar</string>
+    <string name="cargar_productos_de_ejemplo">Cargar productos de ejemplo</string>
     <string name="carrito">Carrito</string>
     <string name="catalogo">Catálogo</string>
     <string name="categoria">Categoría</string>
@@ -23,6 +24,7 @@
     <string name="compra_o_vende_productos_hechos_a_mano">Compra o vende productos hechos a mano en todo el país</string>
     <string name="comprador">Comprador</string>
     <string name="contrasena">Contraseña</string>
+    <string name="contrasena_inicial_minimo_6_caracteres">Contraseña inicial (mínimo 6 caracteres)</string>
     <string name="contrasena_minimo_8_caracteres">Contraseña (mínimo 8 caracteres)</string>
     <string name="correo_electronico">Correo electrónico</string>
     <string name="crear_cuenta">Crear cuenta</string>
@@ -81,6 +83,8 @@
     <string name="o">o</string>
     <string name="oficio_artesanal_opcional">Oficio artesanal (opcional)</string>
     <string name="olvidaste_tu_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="pagaras_de_forma_segura_con_epayco_tar">Pagarás de forma segura con ePayco: tarjeta de crédito o débito, PSE, Nequi o efectivo. Tus datos de pago no pasan por Tramas.</string>
+    <string name="pago_seguro_con_epayco">Pago seguro con ePayco</string>
     <string name="pago_seguro_procesado_por_wompi_tramas">Pago seguro procesado por Wompi. Tramas no almacena los datos de tu tarjeta.</string>
     <string name="panel">Panel</string>
     <string name="pasarela_de_pagos">Pasarela de pagos</string>
@@ -125,6 +129,7 @@
     <string name="unete_a_tramas">Únete a Tramas</string>
     <string name="usar_gps">Usar GPS</string>
     <string name="usar_mi_ubicacion">Usar mi ubicación</string>
+    <string name="usar_mi_ubicacion_actual">Usar mi ubicación actual</string>
     <string name="usuario">Usuario</string>
     <string name="usuarios">Usuarios</string>
     <string name="vaciar_carrito">Vaciar carrito</string>

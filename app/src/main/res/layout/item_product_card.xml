@@ -52,8 +52,8 @@
                     android:layout_width="13dp"
                     android:layout_height="13dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_star"
-                    app:tint="@color/ochre" />
+                    android:src="@drawable/ic_location"
+                    app:tint="@color/ink_muted" />
 
                 <TextView
                     android:id="@+id/tvRating"
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textAppearance="@style/TextAppearance.Tramas.Caption"
-                    tools:text="4,9 · 3,2 km" />
+                    tools:text="3,2 km · Taller Kai" />
             </LinearLayout>
 
             <LinearLayout

@@ -1,0 +1,89 @@
+rules_version = '2';
+
+// Reglas de seguridad de Firestore para Tramas.
+// Pegar en: Firebase Console > Firestore Database > Reglas > Publicar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Funciones auxiliares ----
+    function signedIn() { return request.auth != null; }
+
+    // True si el usuario autenticado tiene el rol ADMIN en su perfil (users/{uid}).
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
+
+    // True si el usuario autenticado es VENDEDOR.
+    function isSeller() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SELLER';
+    }
+
+    // ---- Usuarios y sus carritos ----
+    match /users/{uid} {
+      // Cada usuario lee su perfil; el administrador lee todos.
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      // Registro: el propio usuario crea su perfil solo como COMPRADOR o VENDEDOR y activo.
+      // El administrador puede crear cualquier perfil (CRUD de usuarios).
+      allow create: if signedIn() && (
+        (request.auth.uid == uid
+          && request.resource.data.role in ['BUYER', 'SELLER']
+          && request.resource.data.active == true)
+        || isAdmin());
+
+      // Un usuario edita sus datos pero NO su rol ni su estado; el administrador edita todo.
+      allow update: if signedIn() && (
+        (request.auth.uid == uid
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.active == resource.data.active)
+        || isAdmin());
+
+      allow delete: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      // Carrito: solo su dueño.
+      match /cart/{productId} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    // ---- Productos ----
+    match /products/{productId} {
+      allow read: if signedIn();
+
+      // Un vendedor crea productos propios y siempre quedan PENDING (en revisión). El administrador puede crearlos ACTIVE.
+      allow create: if signedIn()
+        && request.resource.data.sellerId == request.auth.uid
+        && (isAdmin() || (isSeller() && request.resource.data.status == 'PENDING'));
+
+      // Edita el dueño sin cambiar el estado, el administrador (moderación) o cualquier usuario SOLO para descontar stock al comprar.
+      allow update: if signedIn() && (
+        isAdmin()
+        || (resource.data.sellerId == request.auth.uid && request.resource.data.status == resource.data.status)
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock'])
+            && request.resource.data.stock < resource.data.stock));
+
+      allow delete: if signedIn() && (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+
+    // ---- Órdenes (historial de compras) ----
+    match /orders/{orderId} {
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid;
+
+      // Las ve el comprador, cada vendedor involucrado y el administrador.
+      allow read: if signedIn() && (
+        resource.data.buyerId == request.auth.uid
+        || request.auth.uid in resource.data.sellerIds
+        || isAdmin());
+
+      // Comprador (registra el pago), vendedor (cambia el estado de envío) y administrador.
+      allow update: if signedIn() && (
+        resource.data.buyerId == request.auth.uid
+        || request.auth.uid in resource.data.sellerIds
+        || isAdmin());
+    }
+  }
+}

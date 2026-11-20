@@ -21,6 +21,7 @@ class BarChartView @JvmOverloads constructor(context: Context, attrs: AttributeS
     private val label = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = ContextCompat.getColor(context, R.color.ink_muted); textAlign = Paint.Align.CENTER; textSize = context.dp(11).toFloat() }
     private val grid = Paint().apply { color = ContextCompat.getColor(context, R.color.line); strokeWidth = 2f }
 
+    /** Dibuja el eje, las barras (la mayor en ocre) y las etiquetas de cada día. */
     override fun onDraw(canvas: Canvas) {
         if (values.isEmpty()) return
         bar.color = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary)

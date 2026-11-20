@@ -9,6 +9,9 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -18,12 +21,14 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tramas.app.R
-import com.tramas.app.data.Repo
+import com.tramas.app.data.Services
 import com.tramas.app.data.Role
 import com.tramas.app.data.Session
 import com.tramas.app.databinding.ActivityHostBinding
 import com.tramas.app.databinding.NavHeaderBinding
 import com.tramas.app.ui.auth.LoginActivity
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 
 /**
  * Contenedor común de los tres roles: Toolbar + Navigation Drawer + Bottom Navigation + NavHost.
@@ -41,6 +46,7 @@ abstract class RoleHostActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
 
+    /** Arma toolbar, menú lateral, barra inferior y navegación según el rol; observa el carrito. */
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(themeRes)
         super.onCreate(savedInstanceState)
@@ -62,7 +68,7 @@ abstract class RoleHostActivity : AppCompatActivity() {
             true
         }
         NavHeaderBinding.bind(b.navView.getHeaderView(0)).apply {
-            tvAvatar.text = Session.name.first().toString()
+            tvAvatar.text = Session.name.firstOrNull()?.toString() ?: "T"
             tvName.text = Session.name
             tvRole.text = "${Session.role.label} · ${Session.email}"
         }
@@ -71,15 +77,21 @@ abstract class RoleHostActivity : AppCompatActivity() {
             b.bottomNav.isVisible = dest.id in topLevelIds
             b.navView.setCheckedItem(dest.id)
         }
-        // Insignia con la cantidad de productos del carrito (solo existe en el rol Comprador)
+        // Insignia con la cantidad de productos del carrito (solo existe en el rol Comprador); se actualiza en tiempo real.
         if (Session.role == Role.BUYER) {
-            Repo.cart.observe(this) {
-                val badge = b.bottomNav.getOrCreateBadge(R.id.cartFragment)
-                badge.isVisible = Repo.cartCount() > 0
-                badge.number = Repo.cartCount()
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    Services.cart.observe(Session.uid).catch { }.collect { items ->
+                        val count = items.sumOf { it.qty }
+                        val badge = b.bottomNav.getOrCreateBadge(R.id.cartFragment)
+                        badge.isVisible = count > 0
+                        badge.number = count
+                    }
+                }
             }
         }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            /** Atrás: cierra el menú lateral si está abierto o retrocede en la navegación. */
             override fun handleOnBackPressed() {
                 when {
                     b.drawerLayout.isDrawerOpen(GravityCompat.START) -> b.drawerLayout.closeDrawer(GravityCompat.START)
@@ -91,14 +103,19 @@ abstract class RoleHostActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp() = navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
 
+    /** Cierra la sesión de Firebase, limpia la sesión local y vuelve a la pantalla de login. */
+    fun returnToLogin() {
+        Services.auth.signOut()
+        Session.clear()
+        startActivity(Intent(this, LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+    }
+
+    /** Pregunta confirmación antes de cerrar sesión. */
     fun confirmLogout() {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.logout_title)
             .setMessage(R.string.logout_message)
-            .setPositiveButton(R.string.logout) { _, _ ->
-                Repo.clearCart()
-                startActivity(Intent(this, LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
-            }
+            .setPositiveButton(R.string.logout) { _, _ -> returnToLogin() }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }

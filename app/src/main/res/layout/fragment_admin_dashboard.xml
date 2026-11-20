@@ -194,5 +194,14 @@
                     android:text="@string/ver" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSeed"
+            style="@style/Widget.Tramas.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/screen_padding"
+            android:text="@string/cargar_productos_de_ejemplo"
+            app:icon="@drawable/ic_add" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

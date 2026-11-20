@@ -1,18 +1,21 @@
 package com.tramas.app.data
 
-/** Sesión en memoria: rol activo y nombre mostrado en el menú lateral. */
+/**
+ * Sesión en memoria: guarda el perfil del usuario autenticado y su última ubicación conocida.
+ * Se llena al iniciar sesión (LoginActivity) y se limpia al cerrar sesión.
+ */
 object Session {
-    var role: Role = Role.BUYER
-    var name: String = "Juan Pérez"
-    var email: String = "juan@correo.com"
+    /** Perfil del usuario con sesión iniciada; null si no hay sesión. */
+    var user: User? = null
 
-    fun start(role: Role, email: String) {
-        this.role = role
-        this.email = email
-        name = when (role) {
-            Role.BUYER -> "Juan Pérez"
-            Role.SELLER -> "Taller Kai"
-            Role.ADMIN -> "Sofía Mora"
-        }
-    }
+    /** Última ubicación capturada (checkout, perfil o inicio); sirve para calcular distancias a los productos. */
+    var location: GeoPoint? = null
+
+    val role: Role get() = user?.role ?: Role.BUYER
+    val uid: String get() = user?.id ?: ""
+    val name: String get() = user?.name ?: ""
+    val email: String get() = user?.email ?: ""
+
+    /** Limpia todo al cerrar sesión. */
+    fun clear() { user = null; location = null }
 }

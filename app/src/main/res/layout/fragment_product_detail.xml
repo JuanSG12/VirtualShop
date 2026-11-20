@@ -59,8 +59,8 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:contentDescription="@null"
-                        android:src="@drawable/ic_star"
-                        app:tint="@color/ochre" />
+                        android:src="@drawable/ic_store"
+                        app:tint="@color/ink_muted" />
 
                     <TextView
                         android:id="@+id/tvRating"
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:textAppearance="@style/TextAppearance.Tramas.Body"
-                        tools:text="4,9 (36 reseñas)" />
+                        tools:text="Taller Kai" />
 
                     <ImageView
                         android:layout_width="16dp"

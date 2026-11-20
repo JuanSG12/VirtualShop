@@ -8,7 +8,6 @@ import android.view.View
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.tramas.app.data.Repo
 import com.tramas.app.data.Role
 import com.tramas.app.data.Session
 import com.tramas.app.ui.auth.ForgotPasswordActivity
@@ -28,7 +27,7 @@ import java.io.File
 
 /** Infla todas las pantallas (detecta crashes de layouts/estilos) y guarda una captura de cada una. */
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "w360dp-h780dp-xxhdpi")
+@Config(application = TestApp::class, qualifiers = "w360dp-h780dp-xxhdpi")
 class ScreensTest {
     private val out = File(System.getProperty("shots.dir") ?: "build/shots").apply { mkdirs() }
 
@@ -52,7 +51,7 @@ class ScreensTest {
     }
 
     private fun tour(role: Role, cls: Class<out Activity>, prefix: String, steps: List<Pair<Int, android.os.Bundle?>>) {
-        Session.start(role, "demo@tramas.co")
+        Session.user = when (role) { Role.BUYER -> FakeBackend.buyer; Role.SELLER -> FakeBackend.seller; Role.ADMIN -> FakeBackend.admin }
         val act = start(cls) as androidx.appcompat.app.AppCompatActivity
         val nav = (act.supportFragmentManager.findFragmentById(R.id.navHost) as NavHostFragment).navController
         shot("${prefix}_00_start", act)
@@ -63,23 +62,22 @@ class ScreensTest {
     }
 
     @Test fun buyer() {
-        Repo.addToCart(Repo.product(1)!!); Repo.addToCart(Repo.product(2)!!, 2); Repo.addToCart(Repo.product(3)!!)
         tour(Role.BUYER, BuyerActivity::class.java, "buyer", listOf(
             R.id.catalogFragment to null,
-            R.id.productDetailFragment to android.os.Bundle().apply { putInt("productId", 1) },
+            R.id.productDetailFragment to android.os.Bundle().apply { putString("productId", "p1") },
             R.id.cartFragment to null, R.id.checkoutFragment to null, R.id.buyerOrdersFragment to null, R.id.buyerProfileFragment to null))
     }
 
     @Test fun seller() {
         tour(Role.SELLER, SellerActivity::class.java, "seller", listOf(
-            R.id.productFormFragment to android.os.Bundle().apply { putInt("productId", 1) },
+            R.id.productFormFragment to android.os.Bundle().apply { putString("productId", "p1") },
             R.id.sellerOrdersFragment to null, R.id.sellerProfileFragment to null))
     }
 
     @Test fun admin() {
         tour(Role.ADMIN, AdminActivity::class.java, "admin", listOf(
             R.id.adminUsersFragment to null,
-            R.id.userFormFragment to android.os.Bundle().apply { putInt("userId", 2) },
+            R.id.userFormFragment to android.os.Bundle().apply { putString("userId", "u2") },
             R.id.adminProductsFragment to null, R.id.adminSalesFragment to null))
     }
 }

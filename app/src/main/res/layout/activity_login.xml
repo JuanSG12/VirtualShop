@@ -158,41 +158,6 @@
                     app:iconGravity="textStart"
                     app:iconTint="?attr/colorPrimary" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:text="@string/probar_la_app_como_modo_demostracion"
-                    android:textAppearance="@style/TextAppearance.Tramas.Overline" />
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipRole"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    app:selectionRequired="true"
-                    app:singleSelection="true">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipBuyer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="@string/comprador" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipSeller"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/vendedor" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipAdmin"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/administrador" />
-                </com.google.android.material.chip.ChipGroup>
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

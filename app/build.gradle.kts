@@ -1,6 +1,20 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+// El plugin de Google Services exige el archivo app/google-services.json (se descarga de la consola de Firebase).
+// Si no existe, el proyecto igual compila; en ejecución la app avisa que falta configurar Firebase.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
+// Llaves privadas del entorno: se leen de local.properties (que NO se sube a Git).
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -11,8 +25,12 @@ android {
         applicationId = "com.tramas.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
+
+        // ePayco: llave pública de pruebas (Dashboard ePayco > Configuración > Llaves API).
+        buildConfigField("String", "EPAYCO_PUBLIC_KEY", "\"${localProps.getProperty("EPAYCO_PUBLIC_KEY", "")}\"")
+        buildConfigField("boolean", "EPAYCO_TEST", localProps.getProperty("EPAYCO_TEST", "true"))
     }
 
     buildTypes {
@@ -29,6 +47,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -53,11 +72,27 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.4")
     implementation("androidx.navigation:navigation-ui-ktx:2.8.4")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.biometric:biometric:1.1.0")
+
+    // Firebase: Authentication, Firestore (base de datos) y Storage (imágenes)
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+
+    // Google: ubicación (Fused Location Provider) y corrutinas para esperar las tareas de Google (await)
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+
+    // Carga de imágenes remotas en ImageView
+    implementation("io.coil-kt:coil:2.7.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.test:core-ktx:1.6.1")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("androidx.fragment:fragment-testing:1.8.5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }

@@ -10,33 +10,40 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import com.tramas.app.R
-import com.tramas.app.data.Repo
 import com.tramas.app.data.Role
+import com.tramas.app.data.Services
+import com.tramas.app.data.Session
 import com.tramas.app.data.User
 import com.tramas.app.databinding.FragmentAdminUsersBinding
 import com.tramas.app.databinding.ItemUserBinding
 import com.tramas.app.ui.common.BindingAdapter
 import com.tramas.app.ui.common.badge
+import com.tramas.app.ui.common.collectFlow
 import com.tramas.app.ui.common.confirm
+import com.tramas.app.ui.common.launchSafe
+import com.tramas.app.ui.common.loadAvatar
 import com.tramas.app.ui.common.show
 import com.tramas.app.ui.common.snack
 
-/** Gestión de usuarios: listado con búsqueda y filtro por rol; crear, editar y eliminar. */
+/** Gestión de usuarios: listado en tiempo real (Firestore) con búsqueda y filtro por rol; crear, editar y eliminar. */
 class AdminUsersFragment : Fragment() {
 
     private var _b: FragmentAdminUsersBinding? = null
     private val b get() = _b!!
     private var filter: Role? = null
+    private var users: List<User> = emptyList()
     private lateinit var adapter: BindingAdapter<User, ItemUserBinding>
 
+    /** Infla el layout de la pantalla con ViewBinding. */
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentAdminUsersBinding.inflate(i, c, false)
         return b.root
     }
 
+    /** Configura el listado, los filtros por rol y escucha los usuarios de Firestore. */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter = BindingAdapter(ItemUserBinding::inflate) { vb, u ->
-            vb.tvInitial.text = u.name.first().toString()
+            vb.tvInitial.text = u.name.firstOrNull()?.toString() ?: "?"
             vb.tvName.text = u.name
             vb.tvEmail.text = u.email
             vb.tvRole.badge(u.role.label, when (u.role) { Role.ADMIN -> R.color.indigo; Role.SELLER -> R.color.terracotta; Role.BUYER -> R.color.teal })
@@ -45,8 +52,9 @@ class AdminUsersFragment : Fragment() {
             vb.root.setOnClickListener { edit() }
             vb.btnEdit.setOnClickListener { edit() }
             vb.btnDelete.setOnClickListener {
+                if (u.id == Session.uid) { b.root.snack(getString(R.string.cannot_delete_self)); return@setOnClickListener }
                 requireContext().confirm(R.string.delete_user_title, getString(R.string.delete_user_message, u.name), R.string.delete) {
-                    Repo.deleteUser(u.id); refresh(); b.root.snack(getString(R.string.user_deleted))
+                    launchSafe { Services.users.delete(u.id); b.root.snack(getString(R.string.user_deleted)) }
                 }
             }
         }
@@ -57,18 +65,19 @@ class AdminUsersFragment : Fragment() {
                 id = View.generateViewId()
                 text = r?.let { it.label + "s" } ?: getString(R.string.all)
                 isCheckable = true; isChecked = r == null
-                setOnClickListener { filter = r; refresh() }
+                setOnClickListener { filter = r; render() }
             })
         }
-        b.etSearch.doAfterTextChanged { refresh() }
-        b.fabAdd.setOnClickListener { findNavController().navigate(R.id.userFormFragment, bundleOf("userId" to -1)) }
+        b.etSearch.doAfterTextChanged { render() }
+        b.fabAdd.setOnClickListener { findNavController().navigate(R.id.userFormFragment) }
+        collectFlow(Services.users.observeAll()) { users = it.sortedBy { u -> u.name.lowercase() }; render() }
     }
 
-    override fun onResume() { super.onResume(); refresh() }
-
-    private fun refresh() {
+    /** Aplica búsqueda y filtro de rol sobre la lista de usuarios. */
+    private fun render() {
+        if (_b == null) return
         val q = b.etSearch.text.toString().trim()
-        val list = Repo.users.filter { (filter == null || it.role == filter) && (it.name.contains(q, true) || it.email.contains(q, true)) }
+        val list = users.filter { (filter == null || it.role == filter) && (it.name.contains(q, true) || it.email.contains(q, true)) }
         adapter.items = list
         b.emptyState.show(list.isEmpty(), getString(R.string.no_users), getString(R.string.no_users_hint))
     }
