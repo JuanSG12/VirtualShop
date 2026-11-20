@@ -72,9 +72,8 @@ def shots(keys, per_row=3):
         cap, draft = SHOTS[k]
         path, note = find(REAL, k), ""
         if path is None:
-            missing_real.append(k)
-            path = find(DRAFT, draft) if draft else None
-            note = " (borrador)" if path else " (pendiente)"
+            missing_real.append(k)  # sin captura real: se omite (no se muestran borradores ni recuadros vacíos)
+            continue
         if path:
             im = PI.open(path).convert("RGB")
             im.thumbnail((600, 1300))
@@ -107,6 +106,9 @@ def section(title, intro, step_list, keys, note=None):
     text = [P(intro)] + steps(step_list)
     if note:
         text.append(P("<i>" + note + "</i>"))
+    keys = [k for k in keys if find(REAL, k)]
+    if not keys:
+        return [KeepTogether([P(title, "H2")] + text + [Spacer(1, 6)])]
     if len(keys) == 1:
         shot_cell = shots(keys, per_row=1)[0]
         # una captura sola: ancho reducido para que quepa junto al texto

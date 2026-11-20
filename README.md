@@ -18,12 +18,13 @@ App nativa Android en **Kotlin + XML (ViewBinding)** con **Firebase** (Authentic
 
 Sin `google-services.json` el proyecto compila, pero la app avisa que falta configurar Firebase.
 
-## Usuarios de prueba (completar antes de entregar)
+## Usuarios de prueba
+También puedes crear tu propia cuenta de Comprador o Vendedor desde la app ("Regístrate"). El administrador solo existe con la cuenta de abajo.
 | Rol | Correo | Contraseña |
 |---|---|---|
-| Administrador | *(completar)* | *(completar)* |
-| Vendedor | *(completar)* | *(completar)* |
-| Comprador | *(completar)* | *(completar)* |
+| Administrador | admin@admin.com | *(completar contraseña)* |
+| Vendedor | juanito@juan.com | *(completar contraseña)* |
+| Comprador | jsan@jsanw.com | *(completar contraseña)* |
 
 ## Funcionalidades
 | Componente | Dónde está en el código |

@@ -31,9 +31,9 @@ FACULTAD = "Facultad de Ingeniería"
 ASIGNATURA = "Desarrollo de aplicaciones móviles nativas (Android)"
 PROYECTO = "Tramas"
 SUBTITULO = "Documento técnico definitivo"
-INTEGRANTES = ["[Nombre completo – integrante 1]", "[Nombre completo – integrante 2]", "[Nombre completo – integrante 3]"]
-DOCENTE = "[Nombre del docente]"
-FECHA = "13 de octubre de 2026"
+INTEGRANTES = ["Juan Sánchez"]
+DOCENTE = ""  # si se deja vacío, la portada no muestra la sección Docente
+FECHA = "20 de noviembre de 2026"
 
 COVER_TITLE = "Documento técnico definitivo"
 PRIMARY, DARK, SOFT = HexColor("#1F6F5C"), HexColor("#16324A"), HexColor("#EEF4F1")
@@ -127,10 +127,11 @@ def cover_page(c, doc):
     for i, n in enumerate(INTEGRANTES):
         c.drawCentredString(w / 2, y - 16 - i * 15, n)
     y -= 16 + len(INTEGRANTES) * 15 + 22
-    c.setFont("Helvetica-Bold", 10)
-    c.drawCentredString(w / 2, y, "DOCENTE")
-    c.setFont("Helvetica", 11)
-    c.drawCentredString(w / 2, y - 16, DOCENTE)
+    if DOCENTE:
+        c.setFont("Helvetica-Bold", 10)
+        c.drawCentredString(w / 2, y, "DOCENTE")
+        c.setFont("Helvetica", 11)
+        c.drawCentredString(w / 2, y - 16, DOCENTE)
     c.setFont("Helvetica", 11)
     c.drawCentredString(w / 2, 70, "Bogotá D.C., " + FECHA)
 
