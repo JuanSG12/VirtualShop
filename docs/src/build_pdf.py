@@ -518,6 +518,7 @@ def build():
     story += bullets([
         "<b>Pruebas unitarias (JUnit):</b> reglas de precio del carrito (IVA 19 % y envío).",
         "<b>Pruebas de pantallas (Robolectric):</b> infla las 20 pantallas de los tres roles con un backend en memoria y genera sus capturas; otra prueba comprueba que, sin Firebase configurado, la app abre el login y avisa en vez de cerrarse.",
+        "<b>Pruebas manuales en dispositivo físico:</b> se validó el flujo completo en un celular Android real: registro e inicio de sesión, ingreso con huella, cámara y galería, ubicación, catálogo, carrito, pago en modo de pruebas con confirmación y gestión de pedidos por los tres roles.",
         "<b>Versionamiento con Git y GitHub:</b> el código está en " + REPO_URL + ". El README explica la estructura y la puesta en marcha.",
         "<b>Despliegue continuo:</b> el flujo de GitHub Actions (<i>.github/workflows/android.yml</i>) compila, ejecuta las pruebas y publica el APK de depuración como artefacto en cada push.",
         "<b>Comentarios en el código:</b> todas las clases y los métodos relevantes llevan comentarios KDoc que explican su propósito y su lógica.",
