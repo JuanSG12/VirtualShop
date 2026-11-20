@@ -35,6 +35,17 @@ android {
         buildConfigField("String", "EPAYCO_PRIVATE_KEY", "\"${localProps.getProperty("EPAYCO_PRIVATE_KEY", "")}\"")
     }
 
+    // Llave de depuración FIJA del proyecto: así todos los APK (míos, tuyos, de CI) se firman igual y se pueden
+    // instalar unos sobre otros sin el error "conflicto con el paquete". Es una llave de depuración pública, no un secreto.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
