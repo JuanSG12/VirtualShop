@@ -22,9 +22,9 @@ Sin `google-services.json` el proyecto compila, pero la app avisa que falta conf
 También puedes crear tu propia cuenta de Comprador o Vendedor desde la app ("Regístrate"). El administrador solo existe con la cuenta de abajo.
 | Rol | Correo | Contraseña |
 |---|---|---|
-| Administrador | admin@admin.com | *(completar contraseña)* |
-| Vendedor | juanito@juan.com | *(completar contraseña)* |
-| Comprador | jsan@jsanw.com | *(completar contraseña)* |
+| Administrador | admin@admin.com | prueba1 |
+| Vendedor | juanito@juan.com | prueba2 |
+| Comprador | jsan@jsanw.com | prueba2 |
 
 ## Funcionalidades
 | Componente | Dónde está en el código |
